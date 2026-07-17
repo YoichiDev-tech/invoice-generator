@@ -6,7 +6,7 @@ interface ItemTableProps {
 
 export default function ItemTable({ itemRows }: ItemTableProps) {
   const subtotal = itemRows.reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
+    (sum: number, item: InvoiceItem) => sum + item.quantity * item.unitPrice, 
     0
   );
 
@@ -43,7 +43,7 @@ export default function ItemTable({ itemRows }: ItemTableProps) {
               </td>
             </tr>
           )}
-          {itemRows.map((row, index) => {
+          {itemRows.map((row: InvoiceItem, index: number) => { 
             const total = row.quantity * row.unitPrice;
             return (
               <tr key={index}>

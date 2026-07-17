@@ -4,6 +4,7 @@ interface Props {
   invoice: Invoice;
   updateInvoiceField: <K extends keyof Invoice>(key: K, value: Invoice[K]) => void;
   updateItems: (items: InvoiceItem[]) => void;
+  resetInvoice: () => void;
 }
 
 export default function CreateInvoiceForm({ invoice, updateInvoiceField, updateItems }: Props) {

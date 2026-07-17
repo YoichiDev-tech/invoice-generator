@@ -1,12 +1,17 @@
+import type { Invoice, InvoiceItem } from "../../../features/invoices/types/invoiceTypes";
 import SenderInfo from "./SenderInfo";
 import ClientInfo from "./ClientInfo";
 import InvoiceDetails from "./InvoiceDetails";
 import ItemTable from "./ItemTable";
 
-export default function PreviewInvoice({ invoice }) {
+interface PreviewInvoiceProps {
+  invoice: Invoice; 
+}
+
+export default function PreviewInvoice({ invoice }: PreviewInvoiceProps) {
 
   const subtotal = invoice.items.reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
+    (sum: number, item: InvoiceItem) => sum + item.quantity * item.unitPrice, 
     0
   );
 
@@ -50,20 +55,20 @@ export default function PreviewInvoice({ invoice }) {
 
       <div className="preview-header">
         <div className="preview-block">
-          <SenderInfo sender={invoice} />
+          <SenderInfo sender={invoice} /> 
         </div>
 
         <div className="preview-block">
-          <ClientInfo client={invoice.client} />
+          <ClientInfo client={invoice.client} /> 
         </div>
       </div>
 
       <div className="preview-details">
-        <InvoiceDetails invoice={invoice} />
+        <InvoiceDetails invoice={invoice} /> 
       </div>
 
       <div className="preview-items-wrapper">
-        <ItemTable itemRows={invoice.items} />
+        <ItemTable itemRows={invoice.items} /> 
       </div>
 
       {/* Totals section */}
