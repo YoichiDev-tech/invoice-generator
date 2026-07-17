@@ -26,4 +26,5 @@ export interface Invoice {
   items: InvoiceItem[];
   notes?: string;
   status: InvoiceStatus;
+  taxRate: number;
 }

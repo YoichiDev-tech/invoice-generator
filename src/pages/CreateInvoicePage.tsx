@@ -20,6 +20,7 @@ export default function CreateInvoicePage() {
           invoice={invoice}
           updateInvoiceField={updateInvoiceField}
           updateItems={updateItems}
+          resetInvoice={resetInvoice}
         />
 
         <div className="grid-2">
