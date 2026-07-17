@@ -18,6 +18,7 @@ const initialInvoice: Invoice = {
   items: [{ description: "", quantity: 1, unitPrice: 0 }],
   notes: "",
   status: "draft",
+  taxRate: 0,
 };
 
 export function useInvoiceState() {
