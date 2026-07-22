@@ -1,9 +1,9 @@
-import { SupabaseClient } from "../../../lib/supabaseClient";
+import { supabaseClient } from "../../../lib/supabaseClient";
 import type {Client} from "../types/invoiceTypes";
 
 // Create client
 export async function createClient(client: Omit<Client, "id" | "created_at" | "updated_at">) {
-    const {data, error} = await SupabaseClient
+    const {data, error} = await supabaseClient
     .from("clients")
     .insert(client)
     .select()
@@ -15,7 +15,7 @@ export async function createClient(client: Omit<Client, "id" | "created_at" | "u
 
 // Get all clients
 export async function getClients() {
-    const {data, error} = await supabase
+    const {data, error} = await supabaseClient
     .from("clients")
     .select("*")
     .order("created_at", {ascending: false});
@@ -26,7 +26,7 @@ export async function getClients() {
 
 // Update client
 export async function updateClient(id: string, updates: Partial<Client>) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("clients")
     .update(updates)
     .eq("id", id)
@@ -39,7 +39,7 @@ export async function updateClient(id: string, updates: Partial<Client>) {
 
 // Delete client
 export async function deleteClient(id: string) {
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from("clients")
     .delete()
     .eq("id", id);

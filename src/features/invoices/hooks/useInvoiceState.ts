@@ -2,11 +2,16 @@
 import { useState } from "react";
 import type { Invoice, InvoiceItem, Client } from "../types/invoiceTypes";
 
-const initialClient: Client = {
+const [client, setClient] = useState<Client>({
+  id: "",
+  user_id: "",
   name: "",
   email: "",
   company: "",
-};
+  address: "",
+  created_at: "",
+  updated_at: "",
+});
 
 const initialInvoice: Invoice = {
   client: initialClient,
