@@ -50,7 +50,7 @@ Release 1.3 - Full Backend Integration
 
 ## Bugs (on current commit)
 
-None
+- The frontend doesn't call the CRUD functions
 
 ## Future improvements
 
