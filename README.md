@@ -8,28 +8,36 @@ Invoice Generator
 
 ## Description
 
-A professional, client-ready invoice generator.
-This tool allows freelancers, small businesses, and operators to create clean, branded invoices
-with a modern UI and export them as high-quality PDFs.
+A professional, client-ready invoice generator with a full Supababse backend.
+Users can create clients, invoices line items, preview invoices and export them as high quality PDFs.
+
+This project is built as a production-ready prototype with complete CRUD operations 
+and secure Row Level Security (RLS) policies.
 
 ## Current version
 
-16/07/2026 - 22.33
-Release 1.2 - Production-Ready Prototype
+22/07/2026 - 22.03
+Release 1.3 - Full Backend Integration
 
 ## Features
 
-- Create invoice with sender + client details
-- Add, edit and remove line items
-- Automatic subtotal, tax, and total calculation
+### Frontend
+- Create clients
+- Create invoices
+- Add, edit and remove invoice items
+- Automatic subtotal, tax and total calculation
 - Professional invoice preview
-- Real PDF export (html2canvas + jsPDF)
-- Branding block with company name
-- Signature block
-- Paid/Unpaid status badge
-- Notes/payment terms section
+- PDF export (html"canvas + jsPDF)
 - Responsive layout (mobile + desktop)
 - Clean spacing and typography
+
+### Backend
+- Clients table + CRUD
+- Invoices table + CRUD
+- Invoice items table + CRUD
+- Full Row Level Security
+- Policies ensuring users only access their own data
+- Secure architecture ready for production
 
 ## Tech stack
 
@@ -37,7 +45,8 @@ Release 1.2 - Production-Ready Prototype
 - Typescript
 - CSS3
 - html2canvas + jsPDF
-- React router
+- React Router
+- Supabase (Postgres + Auth + RLS)
 
 ## Bugs (on current commit)
 
@@ -56,10 +65,14 @@ None
 
 ## Changelog 
 
-### 22/07/2026 - 02.38
-- Added some new features in the work of each page
-- Fixed some styling bugs
-- Worked and completed all frontend + logic 
+### 22/07/2026 - 22.03
+- Added full Supabase backend
+- Added clients CRUD
+- Added invoices CRUD
+- Added invoices items CRUD
+- Added RLS + policies 
+- Completed backend integration
+- Cleaned up frontend logic
 
 ## Author
 
