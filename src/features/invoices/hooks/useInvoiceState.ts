@@ -1,8 +1,7 @@
-// React hooks for invoices
 import { useState } from "react";
 import type { Invoice, InvoiceItem, Client } from "../types/invoiceTypes";
 
-const [client, setClient] = useState<Client>({
+const initialClient: Client = {
   id: "",
   user_id: "",
   name: "",
@@ -11,7 +10,7 @@ const [client, setClient] = useState<Client>({
   address: "",
   created_at: "",
   updated_at: "",
-});
+};
 
 const initialInvoice: Invoice = {
   client: initialClient,
@@ -20,7 +19,17 @@ const initialInvoice: Invoice = {
   senderEmail: "",
   invoiceNumber: "",
   invoiceDate: new Date().toISOString().slice(0, 10),
-  items: [{ description: "", quantity: 1, unitPrice: 0 }],
+  items: [
+    {
+      id: "",
+      invoice_id: "",
+      description: "",
+      quantity: 1,
+      unit_price: 0,
+      created_at: "",
+      updated_at: "",
+    },
+  ],
   notes: "",
   status: "draft",
   taxRate: 0,
