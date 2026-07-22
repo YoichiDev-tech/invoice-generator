@@ -54,6 +54,13 @@ None
 - Add PDF branding
 - Add invoice status tracking
 
+## Changelog 
+
+### 22/07/2026 - 02.38
+- Added some new features in the work of each page
+- Fixed some styling bugs
+- Worked and completed all frontend + logic 
+
 ## Author
 
 Yoichi dev
