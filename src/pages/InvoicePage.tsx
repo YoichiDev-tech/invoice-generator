@@ -8,6 +8,8 @@ export default function InvoicePage() {
     invoice,
     updateInvoiceField,
     updateItems,
+    addItem,
+    removeItem,
     resetInvoice,
   } = useInvoiceState();
 
@@ -30,6 +32,8 @@ export default function InvoicePage() {
             invoice={invoice}
             updateInvoiceField={updateInvoiceField}
             updateItems={updateItems}
+            addItem={addItem}
+            removeItem={removeItem}
             resetInvoice={resetInvoice}
           />
         </section>

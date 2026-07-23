@@ -1,4 +1,5 @@
 import type { InvoiceItem } from "../../../features/invoices/types/invoiceTypes";
+import { formatCurrency } from "../../../features/invoices/utils/formatCurrency";
 
 interface ItemTableProps {
   itemRows: InvoiceItem[];
@@ -6,7 +7,7 @@ interface ItemTableProps {
 
 export default function ItemTable({ itemRows }: ItemTableProps) {
   const subtotal = itemRows.reduce(
-    (sum: number, item: InvoiceItem) => sum + item.quantity * item.unitPrice, 
+    (sum: number, item: InvoiceItem) => sum + item.quantity * item.unitPrice,
     0
   );
 
@@ -43,10 +44,10 @@ export default function ItemTable({ itemRows }: ItemTableProps) {
               </td>
             </tr>
           )}
-          {itemRows.map((row: InvoiceItem, index: number) => { 
+          {itemRows.map((row: InvoiceItem, index: number) => {
             const total = row.quantity * row.unitPrice;
             return (
-              <tr key={index}>
+              <tr key={row.id ?? index}>
                 <td className="border border-slate-200 px-4 py-3 text-slate-800">
                   {row.description || "—"}
                 </td>
@@ -54,10 +55,10 @@ export default function ItemTable({ itemRows }: ItemTableProps) {
                   {row.quantity}
                 </td>
                 <td className="border border-slate-200 px-4 py-3 text-right text-slate-800">
-                  {row.unitPrice.toFixed(2)}
+                  {formatCurrency(row.unitPrice)}
                 </td>
                 <td className="border border-slate-200 px-4 py-3 text-right text-slate-800">
-                  {total.toFixed(2)}
+                  {formatCurrency(total)}
                 </td>
               </tr>
             );
@@ -72,7 +73,7 @@ export default function ItemTable({ itemRows }: ItemTableProps) {
               Subtotal
             </td>
             <td className="border border-slate-200 px-4 py-3 text-right font-semibold text-slate-800">
-              {subtotal.toFixed(2)}
+              {formatCurrency(subtotal)}
             </td>
           </tr>
         </tfoot>

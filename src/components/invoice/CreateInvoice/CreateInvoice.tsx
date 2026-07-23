@@ -5,6 +5,8 @@ interface CreateInvoiceProps {
   invoice: Invoice;
   updateInvoiceField: <K extends keyof Invoice>(key: K, value: Invoice[K]) => void;
   updateItems: (items: InvoiceItem[]) => void;
+  addItem: () => void;
+  removeItem: (id: string) => void;
   resetInvoice: () => void;
 }
 
@@ -12,6 +14,8 @@ export default function CreateInvoice({
   invoice,
   updateInvoiceField,
   updateItems,
+  addItem,
+  removeItem,
   resetInvoice,
 }: CreateInvoiceProps) {
   return (
@@ -29,6 +33,8 @@ export default function CreateInvoice({
         invoice={invoice}
         updateInvoiceField={updateInvoiceField}
         updateItems={updateItems}
+        addItem={addItem}
+        removeItem={removeItem}
         resetInvoice={resetInvoice}
       />
     </div>

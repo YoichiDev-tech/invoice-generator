@@ -16,8 +16,8 @@ and secure Row Level Security (RLS) policies.
 
 ## Current version
 
-22/07/2026 - 22.03
-Release 1.3 - Full Backend Integration
+22/07/2026 - 23:55
+Release 1.4 - Stability, validation & real invoice polish
 
 ## Features
 
@@ -50,7 +50,9 @@ Release 1.3 - Full Backend Integration
 
 ## Bugs (on current commit)
 
-- The frontend doesn't call the CRUD functions
+Known Issue: Invoice Creation Fails (Supabase Environment Variables Not Loaded)
+
+The Create Invoice page currently fails inside the `try/catch` block when attempting to create a client, invoice, or invoice items. The error shown in the browser console is: `Couldn't save the invoice. Please try again`
 
 ## Future improvements
 
@@ -65,7 +67,7 @@ Release 1.3 - Full Backend Integration
 
 ## Changelog 
 
-### 22/07/2026 - 22.03
+### 22/07/2026 - 22:03
 - Added full Supabase backend
 - Added clients CRUD
 - Added invoices CRUD
@@ -73,6 +75,35 @@ Release 1.3 - Full Backend Integration
 - Added RLS + policies 
 - Completed backend integration
 - Cleaned up frontend logic
+
+### 23//07/2026 - 13.38
+Fixed the bug on the UI that wasn't calling the CRUD functions, by adding:
+ - CRUD functions imports into the designated file (CreateInvoicePage)
+ - added a create invoice handler
+ - replaced the button's onCLick with the new handler 
+
+ ### 23/07/2026 - 23.55
+Stability and real-world polish pass:
+- Fixed `.env.local` — Supabase env vars weren't prefixed with `VITE_`, so the client was silently
+  never connecting to the database
+- Fixed a type mismatch in `useInvoiceState.ts` / `CreateInvoicePage.tsx` that broke `npm run build`
+  entirely (line items were created with DB-shaped snake_case fields against a camelCase type)
+- Split the DB-shaped invoice payload out into its own `InvoiceRecord` type in `invoicesApi.ts`
+  (matching the existing pattern in `invoiceItemsApi.ts`), instead of misusing the UI's `Invoice` type
+- Added an auto-generated invoice number, a proper `dueDate` field, and a status selector to the
+  create form (previously due date silently reused the invoice date, and status was never editable)
+- Added required-field validation with inline error messages before saving
+- Added per-line-item delete (previously only "remove all" existed) and stable item keys
+- Added loading/error state around the Supabase save flow
+- Fixed `StatusBadge` to support the actual `draft/sent/paid/overdue` statuses instead of a
+  hardcoded `PAID`/`UNPAID` pair that never matched real data
+- Removed a duplicated invoice number/date block from the preview (it was rendered twice)
+- Unified all currency display through `formatCurrency` (previously mixed manual "£" strings and
+  raw unformatted numbers)
+- Made PDF export paginate across multiple A4 pages for longer invoices instead of clipping them
+- Replaced a hardcoded personal brand name ("Yoichi Digital") with a neutral, dynamic placeholder
+- General CSS polish: disabled/loading button states, validation alert styling, per-row remove
+  button, a two-column invoice header (branding vs. title), and print-friendly styles
 
 ## Author
 

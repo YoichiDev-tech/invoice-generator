@@ -12,6 +12,9 @@ export interface Client {
 }
 
 export interface InvoiceItem {
+  // Client-side only identifier used for React keys and per-row edits/removals
+  // Not persisted directly — the Supabase layer uses its own DB-shaped item type
+  id: string;
   description: string;
   quantity: number;
   unitPrice: number;
@@ -27,6 +30,8 @@ export interface Invoice {
   senderEmail: string;
   invoiceNumber: string;
   invoiceDate: string;
+  // Due date is distinct from the issue date — every real invoice needs both
+  dueDate: string;
   items: InvoiceItem[];
   notes?: string;
   status: InvoiceStatus;

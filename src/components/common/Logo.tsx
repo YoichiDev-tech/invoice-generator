@@ -1,8 +1,9 @@
 interface LogoProps {
   size?: number; // optional, default 80px
+  companyName?: string; // optional, shown in the placeholder mark
 }
 
-export default function Logo({ size = 80 }: LogoProps) {
+export default function Logo({ size = 80, companyName = "Your Company" }: LogoProps) {
   return (
     <div
       className="branding-logo-placeholder"
@@ -11,7 +12,7 @@ export default function Logo({ size = 80 }: LogoProps) {
         height: size,
       }}
     >
-      Yoichi Digital
+      {companyName}
     </div>
   );
 }

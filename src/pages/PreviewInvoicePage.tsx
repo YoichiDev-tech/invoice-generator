@@ -3,7 +3,6 @@ import PreviewInvoice from "../components/invoice/PreviewInvoice/PreviewInvoice"
 import { exportInvoicePdf } from "../features/invoices/utils/exportPdf";
 
 // Reusable components
-import StatusBadge from "../components/common/StatusBadge";
 import SignatureBlock from "../components/common/SignatureBlock";
 import Footer from "../components/common/Footer";
 
@@ -20,13 +19,9 @@ export default function PreviewInvoicePage() {
       <div className="card space-y">
         {invoice ? (
           <>
-            {/* PDF wrapper */}
+            {/* PDF wrapper — status badge, branding, totals, etc. all live inside
+                PreviewInvoice so there's a single source of truth for the layout */}
             <div id="invoice-preview" className="space-y">
-
-              {/* Status badge */}
-              <StatusBadge status={invoice.status || "UNPAID"} />
-
-              {/* Full invoice preview (includes logo + branding) */}
               <PreviewInvoice invoice={invoice} />
 
               {/* Signature block */}
@@ -41,19 +36,23 @@ export default function PreviewInvoicePage() {
 
               <button
                 className="btn btn-primary"
-                onClick={() => exportInvoicePdf("invoice-preview", "invoice")}
+                onClick={() =>
+                  exportInvoicePdf("invoice-preview", invoice.invoiceNumber || "invoice")
+                }
               >
                 Download / Export PDF
               </button>
             </div>
 
-            <Footer
-              senderEmail={invoice.senderEmail}
-              senderCompany={invoice.senderCompany}
-            />
+            <Footer senderEmail={invoice.senderEmail} senderCompany={invoice.senderCompany} />
           </>
         ) : (
-          <p>No invoice data found.</p>
+          <div className="empty-state">
+            <p>No invoice data found. Create an invoice first to see its preview here.</p>
+            <button className="btn btn-primary" onClick={() => navigate("/create")}>
+              Create an Invoice
+            </button>
+          </div>
         )}
       </div>
     </div>
