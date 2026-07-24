@@ -108,6 +108,13 @@ Stability and real-world polish pass:
 - Added login/signup page
 - Added more styling
 
+### 24/07/2026 - 17:23
+- Fixed Vercel production crash by adding missing supabase env vars (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+- Fixed supabase email confirmation redirect by adding /login and /auth/callback to allowed redirect URLs
+- Removed localhost fallback in supabase (production email links now work)
+- Authentication flow now fully functional: signup => email confirmation => callback => login
+- Multi-user isolation now stable: each user has their own account, clients and invoices
+
 ## Author
 
 Yoichi dev
