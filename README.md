@@ -50,9 +50,7 @@ Release 1.4 - Stability, validation & real invoice polish
 
 ## Bugs (on current commit)
 
-Known Issue: Invoice Creation Fails (Supabase Environment Variables Not Loaded)
-
-The Create Invoice page currently fails inside the `try/catch` block when attempting to create a client, invoice, or invoice items. The error shown in the browser console is: `Couldn't save the invoice. Please try again`
+None
 
 ## Future improvements
 
@@ -104,6 +102,11 @@ Stability and real-world polish pass:
 - Replaced a hardcoded personal brand name ("Yoichi Digital") with a neutral, dynamic placeholder
 - General CSS polish: disabled/loading button states, validation alert styling, per-row remove
   button, a two-column invoice header (branding vs. title), and print-friendly styles
+
+### 24/07/2026 - 15:42
+- Added auth
+- Added login/signup page
+- Added more styling
 
 ## Author
 

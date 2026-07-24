@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { signIn, signUp } from "../features/auth/api/authApi";
+import { signIn, signUp } from "../features/auth/api/AuthApi";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import Logo from "../components/common/Logo";
 

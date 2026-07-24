@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import Logo from "../components/common/Logo";
 import { useAuth } from "../features/auth/hooks/useAuth";
-import { signOut } from "../features/auth/api/authApi";
+import { signOut } from "../features/auth/api/AuthApi";
 
 // CRUD Functions import
 import { createInvoice } from "../features/invoices/api/invoicesApi";
