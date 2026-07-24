@@ -259,6 +259,112 @@ h1, h2, h3, h4 {
   }
 }
 
+/* Compact sections (Sender / Client Information): tighter vertical rhythm
+   and narrower fields than the default form spacing, so these two blocks
+   read as a dense, real-world "invoice header" rather than a long form */
+.space-y-compact > * + * {
+  margin-top: var(--space-sm);
+}
+
+.form-section {
+  max-width: 640px;
+}
+
+.fields-compact {
+  column-gap: var(--space-md);
+  row-gap: var(--space-sm);
+}
+
+.input-compact {
+  padding: 6px 10px;
+  font-size: 13px;
+  max-width: 320px;
+}
+
+@media (max-width: 768px) {
+  .input-compact {
+    max-width: none;
+  }
+}
+
+/* Clean, light divider between form sections */
+.section-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(to right, transparent, var(--border) 15%, var(--border) 85%, transparent);
+  margin: var(--space-md) 0;
+  border: none;
+}
+
+/* Top bar on the create page: logo + sign out */
+.page-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* Auth pages (login / sign up) */
+.auth-page {
+  max-width: 480px;
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.auth-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.auth-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.auth-submit {
+  width: 100%;
+}
+
+.auth-toggle {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.auth-toggle:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.auth-loading {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* Informational (non-error) form feedback, e.g. "check your email" */
+.form-info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 /* Spacing from the fields */
 .field {
   display: flex;

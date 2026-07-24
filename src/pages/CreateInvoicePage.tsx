@@ -4,20 +4,30 @@ import CreateInvoiceForm from "../components/invoice/CreateInvoice/CreateInvoice
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import Logo from "../components/common/Logo";
+import { useAuth } from "../features/auth/hooks/useAuth";
+import { signOut } from "../features/auth/api/authApi";
 
 // CRUD Functions import
 import { createInvoice } from "../features/invoices/api/invoicesApi";
 import { createClient } from "../features/invoices/api/invoiceApi";
 import { createInvoiceItem } from "../features/invoices/api/invoiceItemsApi";
 
-// Placeholder until authentication is added — every client/invoice is
-// currently attributed to this single demo user
-const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
+// This reads the message 
+// field directly off whatever shape the error takes
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) {
+    const message = (err as { message?: unknown }).message;
+    if (typeof message === "string" && message.length > 0) return message;
+  }
+  return "Please try again.";
+}
 
 export default function CreateInvoicePage() {
   const { invoice, updateInvoiceField, updateItems, addItem, removeItem, resetInvoice } =
     useInvoiceState();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -45,6 +55,14 @@ export default function CreateInvoicePage() {
   }
 
   async function handleCreateInvoice() {
+    // ProtectedRoute guarantees a session exists to get here, but guard
+    // anyway in case the session expired mid-edit
+    if (!user) {
+      setErrorMessage("Your session has expired. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
     const problems = validateInvoice();
     if (problems.length > 0) {
       setErrorMessage(problems.join(" "));
@@ -55,9 +73,10 @@ export default function CreateInvoicePage() {
     setIsSaving(true);
 
     try {
-      // Auto-create (or reuse) the client record
+      // Auto-create (or reuse) the client record, attributed to the
+      // logged-in user so it satisfies the "user_id = auth.uid()" RLS policy
       const newClient = await createClient({
-        user_id: DEMO_USER_ID,
+        user_id: user.id,
         name: invoice.client.name,
         email: invoice.client.email,
         company: invoice.client.company,
@@ -66,7 +85,7 @@ export default function CreateInvoicePage() {
 
       // Create/save invoice to supabase using the DB-shaped record (snake_case)
       const newInvoice = await createInvoice({
-        user_id: DEMO_USER_ID,
+        user_id: user.id,
         client_id: newClient.id,
         invoice_date: invoice.invoiceDate,
         due_date: invoice.dueDate,
@@ -101,19 +120,25 @@ export default function CreateInvoicePage() {
       });
     } catch (err) {
       console.error("Error creating invoice:", err);
-      setErrorMessage(
-        err instanceof Error
-          ? `Couldn't save the invoice: ${err.message}`
-          : "Couldn't save the invoice. Please try again."
-      );
+      setErrorMessage(`Couldn't save the invoice: ${getErrorMessage(err)}`);
     } finally {
       setIsSaving(false);
     }
   }
 
+  async function handleSignOut() {
+    await signOut();
+    navigate("/login");
+  }
+
   return (
     <div className="page space-y">
-      <Logo size={70} companyName={invoice.senderCompany || undefined} />
+      <div className="page-top-bar">
+        <Logo size={70} companyName={invoice.senderCompany || undefined} />
+        <button className="auth-toggle" onClick={handleSignOut}>
+          Sign out{user?.email ? ` (${user.email})` : ""}
+        </button>
+      </div>
 
       <h1 className="section-title">Create Invoice</h1>
 

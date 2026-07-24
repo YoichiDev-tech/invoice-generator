@@ -29,14 +29,14 @@ export default function CreateInvoiceForm({
   return (
     <div className="space-y">
       {/* Sender */}
-      <div className="space-y">
+      <div className="space-y-compact form-section">
         <h3 className="label">Sender Information</h3>
 
-        <div className="grid-2">
+        <div className="grid-2 fields-compact">
           <div className="field">
             <label className="label">Your Name</label>
             <input
-              className="input"
+              className="input input-compact"
               value={invoice.senderName}
               placeholder="Jane Smith"
               onChange={e => updateInvoiceField("senderName", e.target.value)}
@@ -46,7 +46,7 @@ export default function CreateInvoiceForm({
           <div className="field">
             <label className="label">Company</label>
             <input
-              className="input"
+              className="input input-compact"
               value={invoice.senderCompany}
               placeholder="Your Company Ltd."
               onChange={e => updateInvoiceField("senderCompany", e.target.value)}
@@ -58,7 +58,7 @@ export default function CreateInvoiceForm({
           <label className="label">Email</label>
           <input
             type="email"
-            className="input"
+            className="input input-compact"
             value={invoice.senderEmail}
             placeholder="you@company.com"
             onChange={e => updateInvoiceField("senderEmail", e.target.value)}
@@ -66,15 +66,18 @@ export default function CreateInvoiceForm({
         </div>
       </div>
 
+      {/* Divider between sender and client sections */}
+      <div className="section-divider" role="separator" />
+
       {/* Client */}
-      <div className="space-y">
+      <div className="space-y-compact form-section">
         <h3 className="label">Client Information</h3>
 
-        <div className="grid-2">
+        <div className="grid-2 fields-compact">
           <div className="field">
             <label className="label">Client Name</label>
             <input
-              className="input"
+              className="input input-compact"
               value={invoice.client.name}
               placeholder="Client full name"
               onChange={e => updateInvoiceField("client", { ...invoice.client, name: e.target.value })}
@@ -84,7 +87,7 @@ export default function CreateInvoiceForm({
           <div className="field">
             <label className="label">Client Company</label>
             <input
-              className="input"
+              className="input input-compact"
               value={invoice.client.company}
               placeholder="Client Company Ltd."
               onChange={e => updateInvoiceField("client", { ...invoice.client, company: e.target.value })}
@@ -92,12 +95,12 @@ export default function CreateInvoiceForm({
           </div>
         </div>
 
-        <div className="grid-2">
+        <div className="grid-2 fields-compact">
           <div className="field">
             <label className="label">Client Email</label>
             <input
               type="email"
-              className="input"
+              className="input input-compact"
               value={invoice.client.email}
               placeholder="client@email.com"
               onChange={e => updateInvoiceField("client", { ...invoice.client, email: e.target.value })}
@@ -107,7 +110,7 @@ export default function CreateInvoiceForm({
           <div className="field">
             <label className="label">Client Address</label>
             <input
-              className="input"
+              className="input input-compact"
               value={invoice.client.address}
               placeholder="Street, City, Postcode"
               onChange={e => updateInvoiceField("client", { ...invoice.client, address: e.target.value })}
@@ -115,6 +118,9 @@ export default function CreateInvoiceForm({
           </div>
         </div>
       </div>
+
+      {/* Divider before invoice details */}
+      <div className="section-divider" role="separator" />
 
       {/* Invoice Meta */}
       <div className="space-y">
