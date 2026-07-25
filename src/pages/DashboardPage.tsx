@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabaseClient } from "../lib/supabaseClient";
+import StatusBadge from "../components/common/StatusBadge";
 
 export default function DashboardPage() {
     const [recentInvoices, setRecentInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [clients, setClients] = useState([]);
 
     useEffect(() => {
-        async function loadInvoices() {
+        async function loadData() {
             setLoading(true);
 
             // Get the current user
-            const {data: {user}} = await supabase.auth.getUser();
+            const {data: {user}} = await supabaseClient.auth.getUser();
             if (!user) {
                 setRecentInvoices([]);
                 setLoading(false);
@@ -18,12 +20,12 @@ export default function DashboardPage() {
             }
 
             // Fetch invoices for this user
-            const {data, error} = await supabase
-            .from("invoices")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", {ascending: false})
-            .limit(5);
+            const {data, error} = await supabaseClient
+                .from("invoices")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", {ascending: false})
+                .limit(5);
 
             if (error) {
                 console.error(error);
@@ -32,11 +34,36 @@ export default function DashboardPage() {
                 setRecentInvoices(data);
             }
 
+            //Fetch all clients for this user
+            const {data: clientData, error: clientError} = await supabaseClient
+                .from("clients")
+                .select("*")
+                .eq("user_id", user.id);
+
+            if(clientError) {
+                console.error(clientError);
+            } else {
+                setClients(clientData);
+            }
+
             setLoading(false);
         }
 
-        loadInvoices();
+        loadData();
+
     }, []);
+    
+    // Lookup map
+    const clientLookup = clients.reduce((acc, client) => {
+        acc[client.id] = client.name;
+        return acc;
+    }, {});
+
+    // Temporary client-side totals
+    const totalInvoices = recentInvoices.length;
+    const totalClients = clients.length;
+    const paidInvoices = recentInvoices.filter(inv => inv.status === "paid").length;
+    const outstandingInvoices = recentInvoices.filter(inv => inv.status === "unpaid").length;
 
     return (
         <div>
@@ -46,22 +73,22 @@ export default function DashboardPage() {
                 <div className="flex gap-4">
                     <div className="p-4 border rounded">
                         <p>Total Invoices</p>
-                        <p>-</p>
+                        <p>{totalInvoices}</p>
                     </div>
 
                     <div className="p-4 border rounded">
                         <p>Total CLients</p>
-                        <p>-</p>
+                        <p>{totalClients}</p>
                     </div>
 
                     <div className="p-4 border rounded">
                         <p>Outstanding</p>
-                        <p>-</p>
+                        <p>{outstandingInvoices}</p>
                     </div>
 
                     <div className="p-4 border rounded">
                         <p>Paid</p>
-                        <p>-</p>
+                        <p>{paidInvoices}</p>
                     </div>
                 </div>
             </section>
@@ -96,15 +123,36 @@ export default function DashboardPage() {
                                 </tr>
                             )}
 
-                            {!loading && recentInvoices.length> 0 && recentInvoices.map((inv) => (
-                                <tr>
-                                    <td className="py-2">-</td>
-                                    <td className="py-2">-</td>
-                                    <td className="py-2">-</td>
-                                    <td className="py-2">-</td>
-                                    <td className="py-2">-</td>
-                                </tr>
-                            ))}
+                            {!loading && recentInvoices.length> 0 && recentInvoices.map((inv) => {
+                                // Format the inv.invoice_date
+                                //into a date object to get/extract this format DD/MM/YYYY
+                                const date = new Date(inv.invoice_date);
+                                
+                                const day = date.getDate();
+                                const formattedDay = String(day).padStart(2, '0'); // the padStart method add a 0 in front
+                                // only if the digit is less than 10
+                                const month = date.getMonth() + 1 // Months are 0-indexed
+                                const formattedMonth = String(month).padStart(2, '0');
+                                const year = date.getFullYear();
+
+                                const formattedDateString = `${formattedDay}/${formattedMonth}/${year}`;
+
+                                
+                                // Currency formatting
+                                const formattedAmount = new Intl.NumberFormat("en-GB", {
+
+                                    style: "currency",
+                                    currency: "GBP" 
+                                }).format(inv.amount);
+
+                                return <tr key={inv.id}>
+                                            <td className="py-2">{inv.id}</td>
+                                            <td className="py-2">{clientLookup[inv.client_id] || "Unknown"}</td>
+                                            <td className="py-2">{formattedAmount}</td>
+                                            <td className="py-2"><StatusBadge status={inv.status} /> </td>
+                                            <td className="py-2">{formattedDateString}</td>
+                                        </tr>
+                            })}
                         </tbody>
                     </table>
                 </div>

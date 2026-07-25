@@ -54,13 +54,11 @@ None
 
 ## Future improvements
 
-- Render the fetched invoices inside the table
 - Add AI assistant
 - Add invoice themes
 - Add multi-currency support
-- Add invoice history + dashboard
+- Add invoice history + analytics
 - Add PDF branding
-- Add invoice status tracking
 
 ## Changelog 
 
@@ -113,6 +111,16 @@ Stability and real-world polish pass:
 - Removed localhost fallback in supabase (production email links now work)
 - Authentication flow now fully functional: signup => email confirmation => callback => login
 - Multi-user isolation now stable: each user has their own account, clients and invoices
+
+### 25/07/2026 - 23:50
+- Added ENUM statuses
+- Added status selector
+- Added dashboard invoice rendering
+- Added client name lookup
+- Added invoice totals (temporary)
+- Added Postgres ENUM migration
+- Fixed StatusBadge to support real statuses
+- Unified currency formatting
 
 ## Author
 

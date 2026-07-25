@@ -9,7 +9,7 @@ interface Props {
   resetInvoice: () => void;
 }
 
-const STATUS_OPTIONS: InvoiceStatus[] = ["draft", "sent", "paid", "overdue"];
+const STATUS_OPTIONS: InvoiceStatus[] = ["draft", "sent", "pending", "paid", "overdue", "cancelled"];
 
 export default function CreateInvoiceForm({
   invoice,
