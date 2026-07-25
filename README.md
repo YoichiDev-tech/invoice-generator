@@ -54,12 +54,11 @@ None
 
 ## Future improvements
 
+- Render the fetched invoices inside the table
 - Add AI assistant
 - Add invoice themes
 - Add multi-currency support
 - Add invoice history + dashboard
-- Add client database
-- Add authentication
 - Add PDF branding
 - Add invoice status tracking
 

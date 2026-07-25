@@ -4,6 +4,7 @@ import PreviewInvoicePage from "./pages/PreviewInvoicePage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AuthProvider } from "./features/auth/hooks/AuthProvider";
+import DashboardPage from "./pages/DashboardPage";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/create" />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route
           path="/create"
           element={
