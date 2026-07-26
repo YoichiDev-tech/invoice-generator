@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import CreateInvoicePage from "./pages/CreateInvoicePage";
 import PreviewInvoicePage from "./pages/PreviewInvoicePage";
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { AuthProvider } from "./features/auth/hooks/AuthProvider";
 
@@ -11,6 +12,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/create" />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/create"
           element={
