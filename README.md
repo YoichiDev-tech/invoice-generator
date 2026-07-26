@@ -50,12 +50,8 @@ Release 1.4 - Stability, validation & real invoice polish
 
 ## Bugs (on current commit)
 
-- Authentication redirect misconfiguration
-- Dashboard route returns 404 on production
-- invoice_totals view returns null/zero values when no active session exists
-- View permission not fully verified
-- Temporary debug code still present
-- Dashboard accessible without authentication (with some flows)
+- View permission on `invoice_totals` not yet fully verified (`GRANT SELECT ... TO authenticated` needs confirming)
+- Temporary debug code still present in `invoiceTotalsApi.ts` (session console.log)
 - No UI for empty states (new users with zero invoices)
 
 ## Future improvements
@@ -120,6 +116,14 @@ Stability and real-world polish pass:
 - Removed localhost fallback in supabase (production email links now work)
 - Authentication flow now fully functional: signup => email confirmation => callback => login
 - Multi-user isolation now stable: each user has their own account, clients and invoices
+
+### 27/07/2026
+- Fixed `invoice_totals` view not being created despite successful `db push` (migration tracking mismatch)
+- Fixed invalid enum value causing migration to fail (`unpaid` isn't a valid `invoice_status`)
+- Fixed Supabase Auth redirect URLs missing localhost, blocking local auth testing
+- Fixed dashboard route returning 404 on production (missing `vercel.json` SPA rewrite + missing route in `App.tsx`)
+- Fixed TypeScript build failures (`DashboardPage.tsx` missing types, `useInvoiceTotals` untyped state)
+- Dashboard now requires authentication (wrapped in `ProtectedRoute`)
 
 ## Author
 
