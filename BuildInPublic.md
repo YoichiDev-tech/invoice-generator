@@ -75,3 +75,6 @@ Verified fetch works
 - No errors
 - Data loads correctly
 - Dashboard now has live backend data ready to render
+
+26/07/2026
+# Move dashboard totals into Postgres (View or RPC)

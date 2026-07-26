@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabaseClient } from "../lib/supabaseClient";
 import StatusBadge from "../components/common/StatusBadge";
+import { useInvoiceTotals } from "../features/invoices/hooks/useInvoiceTotals";
 
 export default function DashboardPage() {
     const [recentInvoices, setRecentInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [clients, setClients] = useState([]);
+
+    // Load backend totals
+    const { totals, loading: totalsLoading, error: totalsError } = useInvoiceTotals();
 
     useEffect(() => {
         async function loadData() {
@@ -34,7 +38,7 @@ export default function DashboardPage() {
                 setRecentInvoices(data);
             }
 
-            //Fetch all clients for this user
+            // Fetch all clients for this user
             const {data: clientData, error: clientError} = await supabaseClient
                 .from("clients")
                 .select("*")
@@ -59,36 +63,32 @@ export default function DashboardPage() {
         return acc;
     }, {});
 
-    // Temporary client-side totals
-    const totalInvoices = recentInvoices.length;
-    const totalClients = clients.length;
-    const paidInvoices = recentInvoices.filter(inv => inv.status === "paid").length;
-    const outstandingInvoices = recentInvoices.filter(inv => inv.status === "unpaid").length;
-
     return (
         <div>
             <h1>Dashboard</h1>
             
             <section className="mt-6">
                 <div className="flex gap-4">
+
+                    {/* Backend totals */}
                     <div className="p-4 border rounded">
                         <p>Total Invoices</p>
-                        <p>{totalInvoices}</p>
+                        <p>{totalsLoading ? "-" : totals?.total_invoices}</p>
                     </div>
 
                     <div className="p-4 border rounded">
-                        <p>Total CLients</p>
-                        <p>{totalClients}</p>
+                        <p>Total Clients</p>
+                        <p>{clients.length}</p>
                     </div>
 
                     <div className="p-4 border rounded">
                         <p>Outstanding</p>
-                        <p>{outstandingInvoices}</p>
+                        <p>{totalsLoading ? "-" : totals?.total_outstanding}</p>
                     </div>
 
                     <div className="p-4 border rounded">
                         <p>Paid</p>
-                        <p>{paidInvoices}</p>
+                        <p>{totalsLoading ? "-" : totals?.total_paid}</p>
                     </div>
                 </div>
             </section>
@@ -110,7 +110,6 @@ export default function DashboardPage() {
                         </thead>
 
                         <tbody>
-                            {/* Placeholder rows */}
                             {loading && (
                                 <tr>
                                     <td colSpan={5}>Loading</td>
@@ -123,35 +122,29 @@ export default function DashboardPage() {
                                 </tr>
                             )}
 
-                            {!loading && recentInvoices.length> 0 && recentInvoices.map((inv) => {
-                                // Format the inv.invoice_date
-                                //into a date object to get/extract this format DD/MM/YYYY
+                            {!loading && recentInvoices.length > 0 && recentInvoices.map((inv) => {
                                 const date = new Date(inv.invoice_date);
                                 
-                                const day = date.getDate();
-                                const formattedDay = String(day).padStart(2, '0'); // the padStart method add a 0 in front
-                                // only if the digit is less than 10
-                                const month = date.getMonth() + 1 // Months are 0-indexed
-                                const formattedMonth = String(month).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
                                 const year = date.getFullYear();
 
-                                const formattedDateString = `${formattedDay}/${formattedMonth}/${year}`;
+                                const formattedDateString = `${day}/${month}/${year}`;
 
-                                
-                                // Currency formatting
                                 const formattedAmount = new Intl.NumberFormat("en-GB", {
-
                                     style: "currency",
-                                    currency: "GBP" 
+                                    currency: "GBP"
                                 }).format(inv.amount);
 
-                                return <tr key={inv.id}>
-                                            <td className="py-2">{inv.id}</td>
-                                            <td className="py-2">{clientLookup[inv.client_id] || "Unknown"}</td>
-                                            <td className="py-2">{formattedAmount}</td>
-                                            <td className="py-2"><StatusBadge status={inv.status} /> </td>
-                                            <td className="py-2">{formattedDateString}</td>
-                                        </tr>
+                                return (
+                                    <tr key={inv.id}>
+                                        <td className="py-2">{inv.id}</td>
+                                        <td className="py-2">{clientLookup[inv.client_id] || "Unknown"}</td>
+                                        <td className="py-2">{formattedAmount}</td>
+                                        <td className="py-2"><StatusBadge status={inv.status} /></td>
+                                        <td className="py-2">{formattedDateString}</td>
+                                    </tr>
+                                );
                             })}
                         </tbody>
                     </table>

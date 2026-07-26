@@ -50,7 +50,7 @@ Release 1.4 - Stability, validation & real invoice polish
 
 ## Bugs (on current commit)
 
-None
+- None 
 
 ## Future improvements
 
@@ -121,6 +121,9 @@ Stability and real-world polish pass:
 - Added Postgres ENUM migration
 - Fixed StatusBadge to support real statuses
 - Unified currency formatting
+
+### 26/07/2026 - 20:09
+- Added dashboard totals into Postgres (View)
 
 ## Author
 
