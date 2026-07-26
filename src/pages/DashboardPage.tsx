@@ -3,13 +3,31 @@ import { supabaseClient } from "../lib/supabaseClient";
 import StatusBadge from "../components/common/StatusBadge";
 import { useInvoiceTotals } from "../features/invoices/hooks/useInvoiceTotals";
 
+
+type Invoice = {
+  id: string;
+  client_id: string;
+  amount: number;
+  status: string;
+  invoice_date: string;
+};
+
+type Client = {
+  id: string;
+  name: string;
+};
+
 export default function DashboardPage() {
-    const [recentInvoices, setRecentInvoices] = useState([]);
+    const [recentInvoices, setRecentInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
-    const [clients, setClients] = useState([]);
+    const [clients, setClients] = useState<Client[]>([]);
 
     // Load backend totals
     const { totals, loading: totalsLoading, error: totalsError } = useInvoiceTotals();
+
+    if (totalsError) {
+        console.error("Failed to load invoice totals:", totalsError);
+    }
 
     useEffect(() => {
         async function loadData() {
@@ -58,7 +76,7 @@ export default function DashboardPage() {
     }, []);
     
     // Lookup map
-    const clientLookup = clients.reduce((acc, client) => {
+    const clientLookup = clients.reduce((acc: Record<string, string>, client) => {
         acc[client.id] = client.name;
         return acc;
     }, {});
