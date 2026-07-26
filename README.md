@@ -50,7 +50,13 @@ Release 1.4 - Stability, validation & real invoice polish
 
 ## Bugs (on current commit)
 
-None
+- Authentication redirect misconfiguration
+- Dashboard route returns 404 on production
+- invoice_totals view returns null/zero values when no active session exists
+- View permission not fully verified
+- Temporary debug code still present
+- Dashboard accessible without authentication (with some flows)
+- No UI for empty states (new users with zero invoices)
 
 ## Future improvements
 
