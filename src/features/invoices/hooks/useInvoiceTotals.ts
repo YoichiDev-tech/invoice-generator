@@ -2,10 +2,21 @@
 import { useEffect, useState } from "react";
 import { getInvoiceTotals } from "../api/invoiceTotalsApi";
 
+type InvoiceTotals = {
+  total_invoices: number;
+  total_paid: number;
+  total_outstanding: number;
+  total_draft: number;
+  total_cancelled: number;
+  total_sent: number;
+  total_pending: number;
+  total_overdue: number;
+};
+
 export function useInvoiceTotals() {
-  const [totals, setTotals] = useState(null);
+  const [totals, setTotals] = useState<InvoiceTotals | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
     async function load() {

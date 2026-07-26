@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { supabaseClient } from "../lib/supabaseClient";
 import StatusBadge from "../components/common/StatusBadge";
 import { useInvoiceTotals } from "../features/invoices/hooks/useInvoiceTotals";
+import type { InvoiceStatus } from "../features/invoices/types/invoiceTypes";
 
 
 type Invoice = {
   id: string;
   client_id: string;
   amount: number;
-  status: string;
+  status: InvoiceStatus;
   invoice_date: string;
 };
 
