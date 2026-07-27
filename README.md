@@ -115,6 +115,12 @@ Stability and real-world polish pass:
 - Authentication flow now fully functional: signup => email confirmation => callback => login
 - Multi-user isolation now stable: each user has their own account, clients and invoices
 
+### 27/07/2026 - 20:48
+- Fixed RLS issue preventing client creation
+- Added "select" and "insert" policies to the clients table
+- (Users can now view and inser their own clients)
+- Invoice creation flow now works correctly on both desktop and mobile
+
 ## Author
 
 Yoichi dev
