@@ -132,7 +132,7 @@ export default function CreateInvoicePage() {
   }
 
   return (
-    <div className="page space-y">
+    <div className="page space-y pr-10">
       <div className="page-top-bar">
         <Logo size={70} companyName={invoice.senderCompany || undefined} />
         <button className="auth-toggle" onClick={handleSignOut}>
@@ -158,7 +158,7 @@ export default function CreateInvoicePage() {
           </div>
         )}
 
-        <div className="grid-2">
+        <div className="grid-2 gap-x-10">
           <button className="btn btn-secondary" onClick={resetInvoice} disabled={isSaving}>
             Reset
           </button>

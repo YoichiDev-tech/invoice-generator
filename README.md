@@ -115,6 +115,21 @@ Stability and real-world polish pass:
 - Authentication flow now fully functional: signup => email confirmation => callback => login
 - Multi-user isolation now stable: each user has their own account, clients and invoices
 
+<<<<<<< Updated upstream
+=======
+### 27/07/2026 - 23:54
+- Fixed `invoice_totals` view not being created despite successful `db push` (migration tracking mismatch)
+- Fixed invalid enum value causing migration to fail (`unpaid` isn't a valid `invoice_status`)
+- Fixed Supabase Auth redirect URLs missing localhost, blocking local auth testing
+- Fixed dashboard route returning 404 on production (missing `vercel.json` SPA rewrite + missing route in `App.tsx`)
+- Fixed TypeScript build failures (`DashboardPage.tsx` missing types, `useInvoiceTotals` untyped state)
+- Dashboard now requires authentication (wrapped in `ProtectedRoute`)
+
+### 27/07/2026 - 19:19
+- Fixed UI spacing where the `Invoice Date` - `Due Date` - `Status` dropdown touched the right edge of the card container
+- Implemented custom CSS rule for <select> elements to add right padding and reposition the dropdown arrow
+
+>>>>>>> Stashed changes
 ## Author
 
 Yoichi dev

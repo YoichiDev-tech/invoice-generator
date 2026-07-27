@@ -158,7 +158,7 @@ export default function CreateInvoiceForm({
           </div>
         </div>
 
-        <div className="grid-2">
+        <div className="grid-2 ">
           <div className="field">
             <label className="label">Status</label>
             <select
