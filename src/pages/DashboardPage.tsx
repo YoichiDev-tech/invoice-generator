@@ -64,31 +64,38 @@ export default function DashboardPage() {
     }, {});
 
     return (
-        <div>
+        <div className="p-6 md:p-10 space-y-10">
             <h1>Dashboard</h1>
             
-            <section className="mt-6">
-                <div className="flex gap-4">
+            {/* Polished totals section */}
+            <section>
+                <h2 className="text-lg font-semibold">Overview</h2>
 
-                    {/* Backend totals */}
-                    <div className="p-4 border rounded">
-                        <p>Total Invoices</p>
-                        <p>{totalsLoading ? "-" : totals?.total_invoices}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                    <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="text-sm text-gray-600">Total Invoices</p>
+                        <p className="text-2xl font-semibold">
+                            {totalsLoading ? "-" : totals?.total_invoices}
+                        </p>
                     </div>
 
-                    <div className="p-4 border rounded">
-                        <p>Total Clients</p>
-                        <p>{clients.length}</p>
+                    <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="text-sm text-gray-600">Total Clients</p>
+                        <p className="text-2xl font-semibold">{clients.length}</p>
                     </div>
 
-                    <div className="p-4 border rounded">
-                        <p>Outstanding</p>
-                        <p>{totalsLoading ? "-" : totals?.total_outstanding}</p>
+                    <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="text-sm text-gray-600">Outstanding</p>
+                        <p className="text-2xl font-semibold">
+                            {totalsLoading ? "-" : totals?.total_outstanding}
+                        </p>
                     </div>
 
-                    <div className="p-4 border rounded">
-                        <p>Paid</p>
-                        <p>{totalsLoading ? "-" : totals?.total_paid}</p>
+                    <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="text-sm text-gray-600">Paid</p>
+                        <p className="text-2xl font-semibold">
+                            {totalsLoading ? "-" : totals?.total_paid}
+                        </p>
                     </div>
                 </div>
             </section>
@@ -118,7 +125,13 @@ export default function DashboardPage() {
 
                             {!loading && recentInvoices.length === 0 && (
                                 <tr>
-                                    <td colSpan={5}>No invoices yet</td>
+                                    <td colSpan={5} className="py-6 text-center text-gray-500">
+                                        <div className="flex flex-col items-center justify-center space-y-2">
+                                            <div className="text-4xl">📄</div>
+                                            <p className="text-sm">No invoices yet</p>
+                                            <p className="text-xs text-gray-400">Create your first invoice to get started</p>
+                                        </div>
+                                    </td>
                                 </tr>
                             )}
 
@@ -152,7 +165,30 @@ export default function DashboardPage() {
             </section>
 
             <section>
-                {/* Quick actions/buttons */}
+                <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <button
+                        className="p-4 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+                        onClick={() => window.location.href = "/invoices/create"}
+                    >
+                        Create Invoice
+                    </button>
+
+                    <button
+                        className="p-4 rounded-lg bg-gray-100 text-gray-800 font-medium hover:bg-gray-200 transition"
+                        onClick={() => window.location.href = "/invoices"}
+                    >
+                        View All Invoices
+                    </button>
+
+                    <button
+                        className="p-4 rounded-lg bg-gray-100 text-gray-800 font-medium hover:bg-gray-200 transition"
+                        onClick={() => window.location.href = "/clients"}
+                    >
+                        Manage Clients
+                    </button>
+                </div>
             </section>
         </div>
     );
