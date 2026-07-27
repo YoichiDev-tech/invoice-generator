@@ -115,6 +115,12 @@ Stability and real-world polish pass:
 - Authentication flow now fully functional: signup => email confirmation => callback => login
 - Multi-user isolation now stable: each user has their own account, clients and invoices
 
+### 27/07/2026 - 21:29
+- Cleaned invoiceTotalsApi.ts by removing debug logs and temporary code
+- Added proper authenticated guard using supabaseClient.auth.getUser()
+- Ensured the totals API returns only real data from the Postgres view
+- Improved API consistency and removed unused imports
+
 ## Author
 
 Yoichi dev
