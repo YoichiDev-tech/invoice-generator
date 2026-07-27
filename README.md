@@ -115,6 +115,13 @@ Stability and real-world polish pass:
 - Authentication flow now fully functional: signup => email confirmation => callback => login
 - Multi-user isolation now stable: each user has their own account, clients and invoices
 
+### 2026-07-27 - 22:37
+- Started implementation of proper route protection
+- Added unified authentication guard for all protected pages
+- Ensured unauthenticated users are redirected to login
+- Prevented authenticated users from accessing login/register pages
+- Improved overall security and user flow
+
 ## Author
 
 Yoichi dev
