@@ -6,14 +6,10 @@ interface ClientInfoProps {
 
 export default function ClientInfo({ client }: ClientInfoProps) {
   return (
-    <div className="space-y-1">
-      <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
-        Bill To
-      </h4>
-      <p className="text-sm text-slate-900 font-medium">
-        {client.name || "Client Name"}
-      </p>
-      <p className="text-xs text-slate-600">
+    <div className="party-block">
+      <h4 className="section-label">Bill To</h4>
+      <p className="party-name">{client.name || "Client Name"}</p>
+      <p className="party-detail party-detail--muted">
         {client.email || "client@email.com"}
       </p>
     </div>

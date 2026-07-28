@@ -6,17 +6,11 @@ interface SenderInfoProps {
 
 export default function SenderInfo({ sender }: SenderInfoProps) {
   return (
-    <div className="space-y-1">
-      <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
-        From
-      </h4>
-      <p className="text-sm text-slate-900 font-medium">
-        {sender.senderName || "Your Name"}
-      </p>
-      <p className="text-sm text-slate-700">
-        {sender.senderCompany || "Your Agency / Company"}
-      </p>
-      <p className="text-xs text-slate-600">
+    <div className="party-block">
+      <h4 className="section-label">From</h4>
+      <p className="party-name">{sender.senderName || "Your Name"}</p>
+      <p className="party-detail">{sender.senderCompany || "Your Agency / Company"}</p>
+      <p className="party-detail party-detail--muted">
         {sender.senderEmail || "your@email.com"}
       </p>
     </div>

@@ -9,6 +9,8 @@
   --shadow-strong: 0 8px 30px rgba(0,0,0,0.08);
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
+  --brand: #1E3A8A;       /* invoice footer + logo box background */
+  --brand-text: #f5f5f5;  /* text color on top of --brand */
 
   --space-xs: 4px;
   --space-sm: 8px;
@@ -23,7 +25,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* Page container */
@@ -354,7 +356,7 @@ h1, h2, h3, h4 {
   font-size: 14px;
 }
 
-/* Informational (non-error) form feedback, e.g. "check your email" */
+/* Informational (non-error) form feedback, for example "check your email" */
 .form-info {
   background: #eff6ff;
   border: 1px solid #bfdbfe;
@@ -440,14 +442,15 @@ h1, h2, h3, h4 {
     gap: var(--space-md);
   }
 
-  .preview-items-table {
+  .invoice-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 14px;
+    min-width: 480px; /* keeps columns readable; wrapper scrolls if needed */
   }
 
-  .preview-items-table th,
-  .preview-items-table td {
+  .invoice-table th,
+  .invoice-table td {
     padding: var(--space-md);
     font-size: 14px;
   }
@@ -506,6 +509,15 @@ h1, h2, h3, h4 {
 /* Professional spacing for invoice number/date */
 .preview-header .grid-2 {
   row-gap: var(--space-md);
+}
+
+/* From / Bill To side-by-side on desktop — this had no default (non-mobile)
+   rule before, so the two blocks were stacking full-width */
+.preview-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
 }
 
 .preview-block {
@@ -584,14 +596,14 @@ h1, h2, h3, h4 {
 .branding-logo-placeholder {
   width: 80px;
   height: 80px;
-  background: var(--border);
+  background: var(--brand); /* same brand color as .preview-footer */
   border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-size: 12px;
-  color: var(--text-light);
+  color: var(--brand-text); /* same tone as .preview-footer text */
   font-weight: 600;
 }
 
@@ -638,12 +650,13 @@ h1, h2, h3, h4 {
   font-size: 14px;
   color: var(--text-light);
 
-  background-color: #1E3A8A; /* or #6D28D9 for purple */
-  color: #f5f5f5;
+  background-color: var(--brand);
+  color: var(--brand-text);
   padding: 20px;
   border-radius: 8px;
   text-align: center;
-  margin-top: 24px;
+  margin-top: auto; /* pushes footer to the bottom of #invoice-preview's
+                        flex column, instead of trailing the content */
 }
 
 .preview-footer p {
@@ -656,7 +669,7 @@ h1, h2, h3, h4 {
 .preview-footer .footer-line,
 .preview-footer .footer-contact,
 .preview-footer .footer-company {
-  color: #f5f5f5;
+  color: var(--brand-text);
 }
 
 .footer-line {
@@ -686,6 +699,97 @@ h1, h2, h3, h4 {
 #invoice-preview {
   padding: 40px;
   background: white;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 1123px; /* A4 height at 794px width (96dpi) — reserves a full
+                         page so the footer has room to sit at the bottom
+                         instead of trailing right after the content */
+}
+
+/* From / Bill To blocks */
+.party-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-light);
+  margin: 0 0 4px;
+}
+
+.party-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.party-detail {
+  font-size: 13px;
+  color: var(--text);
+  margin: 0;
+}
+
+.party-detail--muted {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* Line items table */
+.items-block {
+  margin-top: var(--space-lg);
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: var(--space-sm);
+  font-size: 13px;
+}
+
+.invoice-table col.col-desc { width: 46%; }
+.invoice-table col.col-qty { width: 14%; }
+.invoice-table col.col-price { width: 20%; }
+.invoice-table col.col-total { width: 20%; }
+
+.invoice-table thead th {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-light);
+  text-align: left;
+}
+
+.invoice-table td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  color: var(--text);
+}
+
+.invoice-table th.col-num,
+.invoice-table td.col-num {
+  text-align: right;
+}
+
+.invoice-table td.col-left {
+  text-align: left;
+}
+
+.invoice-table .empty-row {
+  text-align: center;
+  color: var(--text-light);
+  padding: var(--space-md);
 }
 
 /* Theme */

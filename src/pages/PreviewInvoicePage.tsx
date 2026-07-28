@@ -19,13 +19,18 @@ export default function PreviewInvoicePage() {
       <div className="card space-y">
         {invoice ? (
           <>
-            {/* PDF wrapper — status badge, branding, totals, etc. all live inside
+            {/* PDF wrapper — status badge, branding, totals, etc all live inside
                 PreviewInvoice so there's a single source of truth for the layout */}
             <div id="invoice-preview" className="space-y">
               <PreviewInvoice invoice={invoice} />
 
               {/* Signature block */}
               <SignatureBlock senderName={invoice.senderName} />
+
+              {/* Footer must live INSIDE #invoice-preview — html2canvas only
+                  captures this wrapper, so anything outside it never
+                  appears in the exported PDF */}
+              <Footer senderEmail={invoice.senderEmail} senderCompany={invoice.senderCompany} />
             </div>
 
             {/* Buttons */}
@@ -43,8 +48,6 @@ export default function PreviewInvoicePage() {
                 Download / Export PDF
               </button>
             </div>
-
-            <Footer senderEmail={invoice.senderEmail} senderCompany={invoice.senderCompany} />
           </>
         ) : (
           <div className="empty-state">

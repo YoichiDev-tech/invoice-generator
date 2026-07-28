@@ -28,11 +28,6 @@ export default function PreviewInvoice({ invoice }: PreviewInvoiceProps) {
           <div className="branding-logo-placeholder">
             {invoice.senderCompany || "Your Company"}
           </div>
-
-          <div className="branding-name">
-            <h2>{invoice.senderCompany || "Your Company"}</h2>
-            <p className="branding-tagline">Professional Invoice</p>
-          </div>
         </div>
 
         <div className="preview-title-block">

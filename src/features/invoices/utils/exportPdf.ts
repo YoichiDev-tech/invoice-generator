@@ -8,11 +8,26 @@ export async function exportInvoicePdf(elementId: string, fileName: string) {
   // Fix font loading
   await document.fonts.ready; // Ensures  Inter is actually painted before capture
 
+  // Force a fixed, desktop-equivalent width just for the capture. Without
+  // this, exporting from a narrow mobile viewport reflows the layout (the
+  // preview's responsive/mobile CSS kicks in) and the PDF comes out
+  // squashed or restacked compared to a desktop export. I then restore the
+  // original inline width immediately after so the on-screen preview stays
+  // responsive the rest of the time
+  const previousWidth = element.style.width;
+  const previousMaxWidth = element.style.maxWidth;
+  element.style.width = "794px"; // A4 width at 96dpi
+  element.style.maxWidth = "794px";
+
   const canvas = await html2canvas(element, {
     scale: 2,
     useCORS: true,
     backgroundColor: "#ffffff", // avoids transparent-canvas edge artifacts
+    windowWidth: 794,
   });
+
+  element.style.width = previousWidth;
+  element.style.maxWidth = previousMaxWidth;
 
   const imgData = canvas.toDataURL("image/png");
   const pdf = new jsPDF("p", "mm", "a4");
