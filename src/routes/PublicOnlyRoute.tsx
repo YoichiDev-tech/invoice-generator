@@ -1,6 +1,5 @@
 import { useAuth } from "../features/auth/hooks/useAuth";
 import type { ReactNode } from "react";
-import { supabaseClient } from "../lib/supabaseClient";
 
 interface Props {
   children: ReactNode;

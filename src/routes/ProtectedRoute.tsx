@@ -1,14 +1,21 @@
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../features/auth/hooks/useAuth";
+import type { ReactNode } from "react";
 
-export default function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+interface Props {
+  children: ReactNode;
+}
 
-  if (loading) return null; // or a loader
+export default function ProtectedRoute({ children }: Props) {
+  const { session, isLoading } = useAuth();
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  return children;
+  if (!session) {
+    window.location.href = "/login";
+    return null;
+  }
+
+  return <>{children}</>;
 }
