@@ -6,7 +6,7 @@ export async function getInvoiceTotals(): Promise<InvoiceTotals> {
   await supabaseClient.auth.getSession();
 
   const { data, error } = await supabaseClient
-    .from("invoice_totals")
+    .from<InvoiceTotals>("invoice_totals")
     .select("*")
     .single();
 
