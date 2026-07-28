@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getInvoiceTotals } from "../api/invoiceTotalsApi";
 
-interface InvoiceTotals {
+export interface InvoiceTotals {
   total_invoices: number;
   total_outstanding: number;
   total_paid: number;
