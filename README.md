@@ -122,6 +122,13 @@ Stability and real-world polish pass:
 - Prevented authenticated users from accessing login/register pages
 - Improved overall security and user flow
 
+### 28/07/2026 - 21:30
+- Polished PDF export layout
+- Improved invoice preview spacing and alignment
+- Fixed duplicate subtotal rendering
+- Added professional footer styling
+- Cleaned unused Tailwind/PostCSS configs
+
 ## Author
 
 Yoichi dev
