@@ -17,7 +17,7 @@ export function useInvoiceTotals() {
     async function load() {
       try {
         const data = await getInvoiceTotals();
-        setTotals(data);
+        setTotals(data as InvoiceTotals);
       } catch (err) {
         setError(err);
       } finally {

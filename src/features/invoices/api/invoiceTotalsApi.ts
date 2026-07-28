@@ -6,8 +6,7 @@ export async function getInvoiceTotals(): Promise<InvoiceTotals> {
   await supabaseClient.auth.getSession();
 
   const { data, error } = await supabaseClient
-    .from<InvoiceTotals, InvoiceTotals>("invoice_totals") // supabase's typescript
-    // typing requires two type arguments so that's why <InvoiceTotals, InvoiceTotals>
+    .from("invoice_totals")
     .select("*")
     .single();
 
