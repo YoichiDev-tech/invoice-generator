@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getInvoiceTotals } from "../api/invoiceTotalsApi";
 
 export function useInvoiceTotals() {
-  const [totals, setTotals] = useState(null);
+  const [totals, setTotals] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 

@@ -1,24 +1,20 @@
-import type { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/hooks/useAuth";
+import type { ReactNode } from "react";
 
-interface ProtectedRouteProps {
+interface Props {
   children: ReactNode;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children }: Props) {
   const { session, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="page">
-        <p className="auth-loading">Checking your session…</p>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (!session) {
-    return <Navigate to="/login" replace />;
+    window.location.href = "/login";
+    return null;
   }
 
   return <>{children}</>;

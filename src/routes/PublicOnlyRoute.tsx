@@ -1,14 +1,22 @@
-import { Navigate } from "react-router-dom";
+import { useAuth } from "../features/auth/hooks/useAuth";
+import type { ReactNode } from "react";
 import { supabaseClient } from "../lib/supabaseClient";
 
-export function PublicOnlyRoute({ children }) {
-  const session = supabaseClient.auth.getSession();
+interface Props {
+  children: ReactNode;
+}
 
-  if (session === null) return null;
+export default function PublicOnlyRoute({ children }: Props) {
+  const { session, isLoading } = useAuth();
 
-  if (session.data.session) {
-    return <Navigate to="/dashboard" replace />;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  return children;
+  if (session) {
+    window.location.href = "/";
+    return null;
+  }
+
+  return <>{children}</>;
 }

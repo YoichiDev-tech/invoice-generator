@@ -4,12 +4,12 @@ import StatusBadge from "../components/common/StatusBadge";
 import { useInvoiceTotals } from "../features/invoices/hooks/useInvoiceTotals";
 
 export default function DashboardPage() {
-    const [recentInvoices, setRecentInvoices] = useState([]);
+    const [recentInvoices, setRecentInvoices] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [clients, setClients] = useState([]);
+    const [clients, setClients] = useState<any[]>([]);
 
     // Load backend totals
-    const { totals, loading: totalsLoading, error: totalsError } = useInvoiceTotals();
+    const { totals, loading: totalsLoading } = useInvoiceTotals();
 
     useEffect(() => {
         async function loadData() {

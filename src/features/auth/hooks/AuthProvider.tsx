@@ -9,13 +9,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for an existing session (e.g. the user refreshed the page)
     supabaseClient.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setIsLoading(false);
     });
 
-    // Keep the session in sync with sign-in / sign-out / token refresh events
     const { data: subscription } = supabaseClient.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
     });
@@ -26,7 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, loading: isLoading }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,15 +1,22 @@
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/hooks/useAuth";
+import type { ReactNode } from "react";
+import { supabaseClient } from "../../lib/supabaseClient";
 
-export default function PublicOnlyRoute({ children }) {
-  const { user, loading } = useAuth();
+interface Props {
+  children: ReactNode;
+}
 
-  if (loading) return null; // or a loader
+export default function PublicOnlyRoute({ children }: Props) {
+  const { session, isLoading } = useAuth();
 
-  // If user is logged in => redirect away from login/register
-  if (user) {
-    return <Navigate to="/create" replace />;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  return children;
+  if (session) {
+    window.location.href = "/";
+    return null;
+  }
+
+  return <>{children}</>;
 }
