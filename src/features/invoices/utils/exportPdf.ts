@@ -5,9 +5,13 @@ export async function exportInvoicePdf(elementId: string, fileName: string) {
   const element = document.getElementById(elementId);
   if (!element) return;
 
+  // Fix font loading
+  await document.fonts.ready; // Ensures  Inter is actually painted before capture
+
   const canvas = await html2canvas(element, {
     scale: 2,
     useCORS: true,
+    backgroundColor: "#ffffff", // avoids transparent-canvas edge artifacts
   });
 
   const imgData = canvas.toDataURL("image/png");
