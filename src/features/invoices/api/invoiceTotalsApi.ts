@@ -1,9 +1,9 @@
 // Responsible for fetching the totals from the Postgres VIEW
 import { supabaseClient } from "../../../lib/supabaseClient";
+import type { InvoiceTotals } from "../hooks/useInvoiceTotals";
 
-export async function getInvoiceTotals() {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  console.log("SESSION DEBUG:", sessionData.session);
+export async function getInvoiceTotals(): Promise<InvoiceTotals> {
+  await supabaseClient.auth.getSession();
 
   const { data, error } = await supabaseClient
     .from("invoice_totals")
@@ -11,5 +11,6 @@ export async function getInvoiceTotals() {
     .single();
 
   if (error) throw error;
-  return data;
+
+  return data as InvoiceTotals;
 }
