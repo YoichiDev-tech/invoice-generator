@@ -1,4 +1,3 @@
-// Loads the totals and exposes loading/errors states
 import { useEffect, useState } from "react";
 import { getInvoiceTotals } from "../api/invoiceTotalsApi";
 
@@ -10,22 +9,30 @@ export interface InvoiceTotals {
 
 export function useInvoiceTotals() {
   const [totals, setTotals] = useState<InvoiceTotals | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function load() {
       try {
         const data = await getInvoiceTotals();
-        setTotals(data as InvoiceTotals);
+        if (isMounted) setTotals(data);
       } catch (err) {
-        setError(err);
+        if (isMounted) {
+          setError(err instanceof Error ? err : new Error(String(err)));
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
     load();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return { totals, loading, error };

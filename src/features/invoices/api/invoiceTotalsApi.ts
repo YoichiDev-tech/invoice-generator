@@ -11,6 +11,7 @@ export async function getInvoiceTotals(): Promise<InvoiceTotals> {
     .single();
 
   if (error) throw error;
+  if (!data) throw new Error("No invoice totals returned");
 
-  return data as InvoiceTotals;
+  return data as unknown as InvoiceTotals;
 }
