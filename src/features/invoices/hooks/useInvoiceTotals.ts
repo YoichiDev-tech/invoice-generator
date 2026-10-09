@@ -1,38 +1,40 @@
 import { useEffect, useState } from "react";
-import { getInvoiceTotals } from "../api/invoiceTotalsApi";
+import { getInvoices } from "../api/invoicesApi";
 
 export interface InvoiceTotals {
   total_invoices: number;
-  total_outstanding: number;
-  total_paid: number;
+  outstanding_by_currency: Record<string, number>;
+  paid_by_currency: Record<string, number>;
 }
+
+type InvoiceAmountRow = { status?: string; currency?: string | null; total_amount?: number | string | null; amount?: number | string | null; };
 
 export function useInvoiceTotals() {
   const [totals, setTotals] = useState<InvoiceTotals | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
-
+    let active = true;
     async function load() {
       try {
-        const data = await getInvoiceTotals();
-        if (isMounted) setTotals(data);
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err : new Error(String(err)));
+        const invoices = (await getInvoices()) as InvoiceAmountRow[];
+        const outstanding: Record<string, number> = {};
+        const paid: Record<string, number> = {};
+        for (const invoice of invoices) {
+          const currency = invoice.currency || "EUR";
+          const amount = Number(invoice.total_amount ?? invoice.amount ?? 0);
+          if (!Number.isFinite(amount)) continue;
+          if (invoice.status === "paid") paid[currency] = (paid[currency] ?? 0) + amount;
+          else outstanding[currency] = (outstanding[currency] ?? 0) + amount;
         }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+        if (active) setTotals({ total_invoices: invoices.length, outstanding_by_currency: outstanding, paid_by_currency: paid });
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause : new Error(String(cause)));
+      } finally { if (active) setLoading(false); }
     }
-
-    load();
-
-    return () => {
-      isMounted = false;
-    };
+    void load();
+    return () => { active = false; };
   }, []);
 
   return { totals, loading, error };

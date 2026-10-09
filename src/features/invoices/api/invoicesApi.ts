@@ -1,62 +1,61 @@
 import { supabaseClient } from "../../../lib/supabaseClient";
+import type { Invoice, InvoiceStatus } from "../types/invoiceTypes";
 
-// It is intentionally distinct from the UI-facing Invoice type in invoiceTypes.ts,
-// which is camelCase and shaped for form state, not persistence
 export interface InvoiceRecord {
   id: string;
   user_id: string;
   client_id: string;
+  invoice_number: string;
+  sender_name: string;
+  sender_company: string | null;
+  sender_email: string;
+  sender_address: string | null;
+  currency: string;
   invoice_date: string;
   due_date: string;
-  status: string;
+  status: InvoiceStatus;
   tax_rate: number;
-  notes?: string;
+  subtotal: number;
+  tax_amount: number;
+  total_amount: number;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }
 
-// Create an invoice
+export function invoiceAmounts(invoice: Pick<Invoice, "items" | "taxRate">) {
+  const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const taxAmount = subtotal * (invoice.taxRate / 100);
+  return { subtotal: Math.round((subtotal + Number.EPSILON) * 100) / 100, taxAmount: Math.round((taxAmount + Number.EPSILON) * 100) / 100, totalAmount: Math.round((subtotal + taxAmount + Number.EPSILON) * 100) / 100 };
+}
+
+export async function createInvoiceWithItems(invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">, items: Array<{ description: string; quantity: number; unitPrice: number }>) {
+  const { data, error } = await supabaseClient.rpc("create_invoice_with_items", { p_invoice: invoice, p_items: items });
+  if (error) throw error;
+  const result = data as { invoice: InvoiceRecord; items: Array<{ id: string; invoice_id: string; description: string; quantity: number; unit_price: number }> };
+  if (!result?.invoice?.id) throw new Error("The invoice could not be saved. Please try again.");
+  return result;
+}
+
 export async function createInvoice(invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">) {
-    const {data, error} = await supabaseClient
-    .from("invoices")
-    .insert(invoice)
-    .select()
-    .single();
-
-    if(error) throw error;
-    return data;
-}
-
-// Get all invoices
-export async function getInvoices() {
-    const {data, error} = await supabaseClient
-    .from("invoices")
-    .select("*")
-    .order("created_at", {ascending: false});
-
-    if(error) throw error;
-    return data;
-}
-
-// Update invoice
-export async function updateInvoice(id: string, updates: Partial<InvoiceRecord>) {
-  const { data, error } = await supabaseClient
-    .from("invoices")
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
-
+  const { data, error } = await supabaseClient.from("invoices").insert(invoice).select().single();
   if (error) throw error;
   return data;
 }
 
-// Delete invoice
-export async function deleteInvoice(id: string) {
-  const { error } = await supabaseClient
-    .from("invoices")
-    .delete()
-    .eq("id", id);
+export async function getInvoices() {
+  const { data, error } = await supabaseClient.from("invoices").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
 
+export async function updateInvoice(id: string, updates: Partial<InvoiceRecord>) {
+  const { data, error } = await supabaseClient.from("invoices").update(updates).eq("id", id).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteInvoice(id: string) {
+  const { error } = await supabaseClient.from("invoices").delete().eq("id", id);
   if (error) throw error;
 }
