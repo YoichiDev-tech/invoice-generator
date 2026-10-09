@@ -28,7 +28,7 @@ export default function InvoicesPage() {
     } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { const timer = window.setTimeout(() => { void load(); }, 0); return () => window.clearTimeout(timer); }, [load]);
 
   const clientLookup = clients.reduce<Record<string,string>>((map, client) => { map[client.id] = client.name; return map; }, {});
   const money = (amount: number | null | undefined, currency = "EUR") => new Intl.NumberFormat(undefined, { style: "currency", currency }).format(Number(amount ?? 0));

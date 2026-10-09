@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface InvoicePreferences { businessName: string; senderName: string; senderEmail: string; currency: string; defaultNotes: string; defaultTaxRate: string; }
 
 const initialPreferences: InvoicePreferences = { businessName: "", senderName: "", senderEmail: "", currency: "EUR", defaultNotes: "Thank you for your business. Payment is due within 14 days.", defaultTaxRate: "0" };
 
 export default function SettingsPage() {
-  const [preferences, setPreferences] = useState<InvoicePreferences>(initialPreferences);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
+  const [preferences, setPreferences] = useState<InvoicePreferences>(() => {
+    if (typeof window === "undefined") return initialPreferences;
     try {
       const stored = window.localStorage.getItem("folio.invoice-preferences");
-      if (stored) setPreferences({ ...initialPreferences, ...(JSON.parse(stored) as Partial<InvoicePreferences>) });
+      return stored ? { ...initialPreferences, ...(JSON.parse(stored) as Partial<InvoicePreferences>) } : initialPreferences;
     } catch (error) {
       console.warn("Invoice preferences could not be restored.", error);
+      return initialPreferences;
     }
-  }, []);
+  });
+  const [saved, setSaved] = useState(false);
 
   function update<K extends keyof InvoicePreferences>(key: K, value: InvoicePreferences[K]) {
     setPreferences((current) => ({ ...current, [key]: value }));
