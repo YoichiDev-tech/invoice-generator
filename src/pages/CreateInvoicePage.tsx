@@ -49,7 +49,7 @@ export default function CreateInvoicePage() {
       const newClient = await createClient({ user_id: user.id, name: invoice.client.name.trim(), email: invoice.client.email.trim(), company: invoice.client.company, address: invoice.client.address });
       const amounts = invoiceAmounts(invoice);
       const saved = await createInvoiceWithItems({
-        user_id: user.id, client_id: newClient.id, invoice_number: invoice.invoiceNumber.trim(),
+        user_id: user.id, client_id: newClient.id, client_name: invoice.client.name.trim(), client_company: invoice.client.company?.trim() || null, client_email: invoice.client.email.trim(), client_address: invoice.client.address?.trim() || null, invoice_number: invoice.invoiceNumber.trim(),
         sender_name: invoice.senderName.trim(), sender_company: invoice.senderCompany.trim() || null,
         sender_email: invoice.senderEmail.trim(), sender_address: invoice.senderAddress.trim() || null,
         currency: invoice.currency, invoice_date: invoice.invoiceDate, due_date: invoice.dueDate,

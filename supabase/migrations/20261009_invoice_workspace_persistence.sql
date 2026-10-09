@@ -1,6 +1,10 @@
 -- Persist complete invoice documents and enforce owner-based access.
 -- Review table/column names against the live project before applying this migration.
 
+alter table public.invoices add column if not exists client_name text;
+alter table public.invoices add column if not exists client_company text;
+alter table public.invoices add column if not exists client_email text;
+alter table public.invoices add column if not exists client_address text;
 alter table public.invoices add column if not exists invoice_number text;
 alter table public.invoices add column if not exists sender_name text;
 alter table public.invoices add column if not exists sender_company text;
@@ -10,6 +14,14 @@ alter table public.invoices add column if not exists currency text not null defa
 alter table public.invoices add column if not exists subtotal numeric(12,2) not null default 0;
 alter table public.invoices add column if not exists tax_amount numeric(12,2) not null default 0;
 alter table public.invoices add column if not exists total_amount numeric(12,2) not null default 0;
+
+update public.invoices i
+set client_name = coalesce(i.client_name, c.name),
+    client_company = coalesce(i.client_company, c.company),
+    client_email = coalesce(i.client_email, c.email),
+    client_address = coalesce(i.client_address, c.address)
+from public.clients c
+where c.id = i.client_id;
 
 update public.invoices
 set invoice_number = 'INV-LEGACY-' || upper(substr(id::text, 1, 8))
@@ -116,11 +128,14 @@ begin
   calculated_total := calculated_subtotal + calculated_tax;
 
   insert into public.invoices (
-    user_id, client_id, invoice_number, sender_name, sender_company, sender_email,
-    sender_address, currency, invoice_date, due_date, status, tax_rate,
+    user_id, client_id, client_name, client_company, client_email, client_address,
+    invoice_number, sender_name, sender_company, sender_email, sender_address, currency,
+    invoice_date, due_date, status, tax_rate,
     subtotal, tax_amount, total_amount, notes
   ) values (
     (p_invoice->>'user_id')::uuid, (p_invoice->>'client_id')::uuid,
+    trim(p_invoice->>'client_name'), nullif(trim(p_invoice->>'client_company'), ''),
+    trim(p_invoice->>'client_email'), nullif(trim(p_invoice->>'client_address'), ''),
     trim(p_invoice->>'invoice_number'), trim(p_invoice->>'sender_name'),
     nullif(trim(p_invoice->>'sender_company'), ''), trim(p_invoice->>'sender_email'),
     nullif(trim(p_invoice->>'sender_address'), ''), coalesce(nullif(p_invoice->>'currency', ''), 'EUR'),

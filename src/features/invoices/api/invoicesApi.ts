@@ -5,6 +5,10 @@ export interface InvoiceRecord {
   id: string;
   user_id: string;
   client_id: string;
+  client_name: string;
+  client_company: string | null;
+  client_email: string;
+  client_address: string | null;
   invoice_number: string;
   sender_name: string;
   sender_company: string | null;
