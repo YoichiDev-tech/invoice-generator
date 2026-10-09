@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { createClient, deleteClient, getClients } from "../features/invoices/api/invoiceApi";
 import type { Client } from "../features/invoices/types/invoiceTypes";
@@ -24,7 +25,7 @@ export default function ClientsPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function addClient(event: React.FormEvent<HTMLFormElement>) {
+  async function addClient(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!user) { setError("Your session has expired. Please sign in again."); return; }
     setSaving(true); setError(""); setNotice("");
