@@ -54,7 +54,8 @@ export default function CreateInvoicePage() {
     setErrorMessage(null); setIsSaving(true);
     try {
       const newClient = await createClient({ user_id: user.id, name: invoice.client.name.trim(), email: invoice.client.email.trim(), company: invoice.client.company, address: invoice.client.address });
-      const amounts = invoiceAmounts(invoice);
+      const billableItems = invoice.items.filter((item) => item.description.trim());
+      const amounts = invoiceAmounts({ ...invoice, items: billableItems });
       const invoicePayload = {
         user_id: user.id, client_id: newClient.id, client_name: invoice.client.name.trim(), client_company: invoice.client.company?.trim() || null, client_email: invoice.client.email.trim(), client_address: invoice.client.address?.trim() || null, invoice_number: invoice.invoiceNumber.trim(),
         sender_name: invoice.senderName.trim(), sender_company: invoice.senderCompany.trim() || null,
@@ -63,7 +64,7 @@ export default function CreateInvoicePage() {
         status: invoice.status, tax_rate: invoice.taxRate, subtotal: amounts.subtotal,
         tax_amount: amounts.taxAmount, total_amount: amounts.totalAmount, notes: invoice.notes?.trim() || null,
       };
-      const itemsPayload = invoice.items.filter((item) => item.description.trim()).map((item) => ({ description: item.description.trim(), quantity: item.quantity, unitPrice: item.unitPrice }));
+      const itemsPayload = billableItems.map((item) => ({ description: item.description.trim(), quantity: item.quantity, unitPrice: item.unitPrice }));
       const saved = invoice.id
         ? await updateInvoiceWithItems(invoice.id, invoicePayload, itemsPayload)
         : await createInvoiceWithItems(invoicePayload, itemsPayload);
