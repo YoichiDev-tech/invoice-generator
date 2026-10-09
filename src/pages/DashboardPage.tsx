@@ -43,7 +43,7 @@ export default function DashboardPage() {
   }, []);
 
   const clientLookup = clients.reduce<Record<string, string>>((acc, client) => { acc[client.id] = client.name; return acc; }, {});
-  const currency = (amount: number | null | undefined) => new Intl.NumberFormat(undefined, { style: "currency", currency: "EUR" }).format(Number(amount ?? 0));
+  const currencyGroups = (values: Record<string, number> | undefined) => { const entries = Object.entries(values ?? {}).filter(([, amount]) => Number.isFinite(amount) && amount !== 0); return entries.length ? entries.map(([currency, amount]) => new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(amount)).join(" · ") : "—"; };
 
   return (
     <div className="dashboard-stack">
@@ -55,8 +55,8 @@ export default function DashboardPage() {
       <section className="dashboard-metrics">
         <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Total invoices</span><span className="dashboard-metric-icon">▤</span></div><p>{totalsLoading ? "—" : totals?.total_invoices ?? 0}</p><small>All invoices in your workspace</small></article>
         <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Clients</span><span className="dashboard-metric-icon">♙</span></div><p>{loading ? "—" : clients.length}</p><small>People and businesses you bill</small></article>
-        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Outstanding</span><span className="dashboard-metric-icon">◷</span></div><p>{totalsLoading ? "—" : currency(totals?.total_outstanding)}</p><small>Invoices still awaiting payment</small></article>
-        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Paid</span><span className="dashboard-metric-icon">✓</span></div><p>{totalsLoading ? "—" : currency(totals?.total_paid)}</p><small>Recorded as paid</small></article>
+        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Outstanding</span><span className="dashboard-metric-icon">◷</span></div><p className="dashboard-money-value">{totalsLoading ? "—" : currencyGroups(totals?.outstanding_by_currency)}</p><small>Invoices still awaiting payment</small></article>
+        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Paid</span><span className="dashboard-metric-icon">✓</span></div><p className="dashboard-money-value">{totalsLoading ? "—" : currencyGroups(totals?.paid_by_currency)}</p><small>Recorded as paid</small></article>
       </section>
       <section className="workspace-card">
         <div className="workspace-card-heading"><div><h2>Recent invoices</h2><p>Your latest billing activity.</p></div><Link to="/invoices" className="workspace-text-link">View all invoices <span aria-hidden="true">→</span></Link></div>

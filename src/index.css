@@ -181,3 +181,5 @@ h1,h2,h3,h4 { margin: 0; font-weight: 650; letter-spacing: -.035em; }
 .invoice-delete-action:hover:not(:disabled) { background: #fee2e2; }
 .invoice-delete-action:disabled { opacity: .5; cursor: not-allowed; }
 @media (max-width: 520px) { .client-row { align-items: flex-start; padding: 15px; } .invoice-row-actions { align-items: flex-start; flex-direction: column; } .invoice-row-actions select { max-width: 100px; } }
+
+.dashboard-metric>p.dashboard-money-value { overflow-wrap: anywhere; white-space: normal; font-size: clamp(13px,1.7vw,19px); line-height: 1.45; letter-spacing: -.025em; }
