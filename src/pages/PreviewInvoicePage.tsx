@@ -46,27 +46,26 @@ export default function PreviewInvoicePage() {
   const navigate = useNavigate();
   const { invoiceId } = useParams();
   const [invoice, setInvoice] = useState<Invoice | null>(() => (state as { invoice?: Invoice } | null)?.invoice ?? null);
-  const [isLoading, setIsLoading] = useState(Boolean(invoiceId));
+  const [finishedInvoiceId, setFinishedInvoiceId] = useState<string | null>(null);
+  const isLoading = Boolean(invoiceId && finishedInvoiceId !== invoiceId);
   const [loadError, setLoadError] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState("");
 
   useEffect(() => {
     let active = true;
-    if (!invoiceId) {
-      setIsLoading(false);
-      return () => { active = false; };
-    }
-    setIsLoading(true);
-    setLoadError("");
+    if (!invoiceId) return () => { active = false; };
     Promise.all([getInvoiceById(invoiceId), getInvoiceItems(invoiceId)])
       .then(([record, items]) => {
-        if (active) setInvoice(getInvoiceFromRecord(record, items));
+        if (active) {
+          setInvoice(getInvoiceFromRecord(record, items));
+          setLoadError("");
+        }
       })
       .catch((error: unknown) => {
         if (active) setLoadError(error instanceof Error ? error.message : "Could not load this saved invoice.");
       })
-      .finally(() => { if (active) setIsLoading(false); });
+      .finally(() => { if (active) setFinishedInvoiceId(invoiceId); });
     return () => { active = false; };
   }, [invoiceId]);
 
