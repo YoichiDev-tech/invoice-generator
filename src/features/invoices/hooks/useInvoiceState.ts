@@ -51,12 +51,13 @@ function buildInitialInvoice(): Invoice {
   };
 }
 
-export function useInvoiceState() {
-  const [invoice, setInvoice] = useState<Invoice>(buildInitialInvoice);
+export function useInvoiceState(initialInvoice?: Invoice) {
+  const cloneInvoice = (value: Invoice): Invoice => ({ ...value, client: { ...value.client }, items: value.items.map((item) => ({ ...item })) });
+  const [invoice, setInvoice] = useState<Invoice>(() => initialInvoice ? cloneInvoice(initialInvoice) : buildInitialInvoice());
   function updateInvoiceField<K extends keyof Invoice>(key: K, value: Invoice[K]) { setInvoice((prev) => ({ ...prev, [key]: value })); }
   function updateItems(items: InvoiceItem[]) { setInvoice((prev) => ({ ...prev, items })); }
   function addItem() { setInvoice((prev) => ({ ...prev, items: [...prev.items, { id: generateItemId(), description: "", quantity: 1, unitPrice: 0 }] })); }
   function removeItem(id: string) { setInvoice((prev) => ({ ...prev, items: prev.items.length > 1 ? prev.items.filter((item) => item.id !== id) : prev.items })); }
-  function resetInvoice() { setInvoice(buildInitialInvoice()); }
+  function resetInvoice() { setInvoice(initialInvoice ? cloneInvoice(initialInvoice) : buildInitialInvoice()); }
   return { invoice, updateInvoiceField, updateItems, addItem, removeItem, resetInvoice };
 }

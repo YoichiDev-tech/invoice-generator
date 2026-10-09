@@ -23,11 +23,11 @@ export default function PreviewInvoicePage() {
 
   return (
     <div className="preview-workspace">
-      <div className="preview-toolbar"><div><p className="dashboard-eyebrow">FINAL REVIEW</p><h2>Review before you send.</h2><p>Check the details and download a PDF copy for your records.</p></div><button className="btn btn-secondary" onClick={() => navigate("/create")}>← Back to editor</button></div>
+      <div className="preview-toolbar"><div><p className="dashboard-eyebrow">FINAL REVIEW</p><h2>Review before you send.</h2><p>Check the details and download a PDF copy for your records.</p></div><button className="btn btn-secondary" onClick={() => navigate("/create", { state: { invoice } })}>← Back to editor</button></div>
       <div className="card preview-invoice-card">
         {invoice ? <>
           <div id="invoice-preview" className="invoice-pdf-canvas"><PreviewInvoice invoice={invoice} /><SignatureBlock senderName={invoice.senderName} /><Footer senderEmail={invoice.senderEmail} senderCompany={invoice.senderCompany} /></div>
-          <div className="preview-actions"><button className="btn btn-secondary" onClick={() => navigate("/create")}>Edit details</button><button className="btn btn-primary" onClick={() => void handleExport()} disabled={isExporting} aria-busy={isExporting}>{isExporting ? "Preparing PDF…" : "Download PDF ↓"}</button></div>
+          <div className="preview-actions"><button className="btn btn-secondary" onClick={() => navigate("/create", { state: { invoice } })}>Edit details</button><button className="btn btn-primary" onClick={() => void handleExport()} disabled={isExporting} aria-busy={isExporting}>{isExporting ? "Preparing PDF…" : "Download PDF ↓"}</button></div>
           {exportError && <p role="alert" className="form-alert mt-lg">{exportError}</p>}
         </> : <div className="empty-state"><p>No invoice data found. Start by creating an invoice.</p><button className="btn btn-primary" onClick={() => navigate("/create")}>Create invoice</button></div>}
       </div>

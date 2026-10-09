@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useInvoiceState } from "../features/invoices/hooks/useInvoiceState";
 import CreateInvoiceForm from "../components/invoice/CreateInvoice/CreateInvoiceForm";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { createClient } from "../features/invoices/api/invoiceApi";
-import { createInvoiceWithItems, invoiceAmounts } from "../features/invoices/api/invoicesApi";
+import { createInvoiceWithItems, updateInvoiceWithItems, invoiceAmounts } from "../features/invoices/api/invoicesApi";
+import type { Invoice } from "../features/invoices/types/invoiceTypes";
 
 function getErrorMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -17,7 +18,9 @@ function getErrorMessage(err: unknown): string {
 }
 
 export default function CreateInvoicePage() {
-  const { invoice, updateInvoiceField, updateItems, addItem, removeItem, resetInvoice } = useInvoiceState();
+  const location = useLocation();
+  const initialInvoice = (location.state as { invoice?: Invoice } | null)?.invoice;
+  const { invoice, updateInvoiceField, updateItems, addItem, removeItem, resetInvoice } = useInvoiceState(initialInvoice);
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
@@ -52,16 +55,20 @@ export default function CreateInvoicePage() {
     try {
       const newClient = await createClient({ user_id: user.id, name: invoice.client.name.trim(), email: invoice.client.email.trim(), company: invoice.client.company, address: invoice.client.address });
       const amounts = invoiceAmounts(invoice);
-      const saved = await createInvoiceWithItems({
+      const invoicePayload = {
         user_id: user.id, client_id: newClient.id, client_name: invoice.client.name.trim(), client_company: invoice.client.company?.trim() || null, client_email: invoice.client.email.trim(), client_address: invoice.client.address?.trim() || null, invoice_number: invoice.invoiceNumber.trim(),
         sender_name: invoice.senderName.trim(), sender_company: invoice.senderCompany.trim() || null,
         sender_email: invoice.senderEmail.trim(), sender_address: invoice.senderAddress.trim() || null,
         currency: invoice.currency, invoice_date: invoice.invoiceDate, due_date: invoice.dueDate,
         status: invoice.status, tax_rate: invoice.taxRate, subtotal: amounts.subtotal,
         tax_amount: amounts.taxAmount, total_amount: amounts.totalAmount, notes: invoice.notes?.trim() || null,
-      }, invoice.items.filter((item) => item.description.trim()).map((item) => ({ description: item.description.trim(), quantity: item.quantity, unitPrice: item.unitPrice })));
+      };
+      const itemsPayload = invoice.items.filter((item) => item.description.trim()).map((item) => ({ description: item.description.trim(), quantity: item.quantity, unitPrice: item.unitPrice }));
+      const saved = invoice.id
+        ? await updateInvoiceWithItems(invoice.id, invoicePayload, itemsPayload)
+        : await createInvoiceWithItems(invoicePayload, itemsPayload);
       const previewItems = saved.items.map((item, index) => ({ id: item.id || "saved-" + index, description: item.description, quantity: Number(item.quantity), unitPrice: Number(item.unit_price) }));
-      navigate("/preview", { state: { invoice: { ...invoice, id: saved.invoice.id, client: newClient, items: previewItems } } });
+      navigate("/preview", { state: { invoice: { ...invoice, id: saved.invoice.id, client: newClient, items: previewItems } }, replace: true });
     } catch (err) {
       console.error("Error creating invoice:", err);
       setErrorMessage("Couldn't save the invoice: " + getErrorMessage(err));

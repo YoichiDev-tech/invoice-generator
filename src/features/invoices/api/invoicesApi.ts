@@ -41,6 +41,22 @@ export async function createInvoiceWithItems(invoice: Omit<InvoiceRecord, "id" |
   return result;
 }
 
+export async function updateInvoiceWithItems(
+  id: string,
+  invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">,
+  items: Array<{ description: string; quantity: number; unitPrice: number }>
+) {
+  const { data, error } = await supabaseClient.rpc("update_invoice_with_items", {
+    p_invoice_id: id,
+    p_invoice: invoice,
+    p_items: items,
+  });
+  if (error) throw error;
+  const result = data as { invoice: InvoiceRecord; items: Array<{ id: string; invoice_id: string; description: string; quantity: number; unit_price: number }> };
+  if (!result?.invoice?.id) throw new Error("The invoice could not be updated. Please try again.");
+  return result;
+}
+
 export async function createInvoice(invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">) {
   const { data, error } = await supabaseClient.from("invoices").insert(invoice).select().single();
   if (error) throw error;

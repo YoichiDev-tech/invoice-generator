@@ -191,3 +191,122 @@ $function$;
 
 revoke all on function public.delete_invoice_with_items(uuid) from public, anon;
 grant execute on function public.delete_invoice_with_items(uuid) to authenticated;
+
+
+create or replace function public.update_invoice_with_items(p_invoice_id uuid, p_invoice jsonb, p_items jsonb)
+returns jsonb
+language plpgsql
+security invoker
+set search_path = public
+as $function$
+declare
+  saved_invoice public.invoices%rowtype;
+  saved_items jsonb;
+  item_row jsonb;
+  invoice_tax_rate numeric(7,4);
+  calculated_subtotal numeric(12,2) := 0;
+  calculated_tax numeric(12,2) := 0;
+  calculated_total numeric(12,2) := 0;
+  item_quantity numeric;
+  item_unit_price numeric;
+begin
+  if (p_invoice->>'user_id') is distinct from (select auth.uid())::text then
+    raise exception 'Invoice owner does not match the authenticated user';
+  end if;
+  if not exists (
+    select 1 from public.clients c
+    where c.id = nullif(p_invoice->>'client_id', '')::uuid
+      and c.user_id = (select auth.uid())
+  ) then
+    raise exception 'Client not found or access denied';
+  end if;
+  if nullif(trim(p_invoice->>'invoice_number'), '') is null then
+    raise exception 'An invoice number is required';
+  end if;
+  if nullif(trim(p_invoice->>'sender_name'), '') is null or nullif(trim(p_invoice->>'sender_email'), '') is null then
+    raise exception 'Sender name and email are required';
+  end if;
+  if nullif(p_invoice->>'invoice_date', '') is null or nullif(p_invoice->>'due_date', '') is null then
+    raise exception 'Invoice date and due date are required';
+  end if;
+  if (p_invoice->>'due_date')::date < (p_invoice->>'invoice_date')::date then
+    raise exception 'Due date cannot be earlier than invoice date';
+  end if;
+  if coalesce(p_invoice->>'status', 'draft') not in ('draft', 'sent', 'paid', 'overdue') then
+    raise exception 'Invalid invoice status';
+  end if;
+  if coalesce(p_invoice->>'currency', 'EUR') not in ('EUR', 'GBP', 'USD', 'PLN', 'CHF') then
+    raise exception 'Unsupported invoice currency';
+  end if;
+  invoice_tax_rate := coalesce((p_invoice->>'tax_rate')::numeric, 0);
+  if invoice_tax_rate < 0 or invoice_tax_rate > 100 then
+    raise exception 'Tax rate must be between 0 and 100';
+  end if;
+  if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'At least one invoice line item is required';
+  end if;
+
+  for item_row in select value from jsonb_array_elements(p_items)
+  loop
+    item_quantity := (item_row->>'quantity')::numeric;
+    item_unit_price := (item_row->>'unitPrice')::numeric;
+    if nullif(trim(item_row->>'description'), '') is null then
+      raise exception 'Line item description is required';
+    end if;
+    if item_quantity is null or item_quantity <= 0 then
+      raise exception 'Line item quantity must be greater than zero';
+    end if;
+    if item_unit_price is null or item_unit_price < 0 then
+      raise exception 'Line item unit price cannot be negative';
+    end if;
+    calculated_subtotal := calculated_subtotal + item_quantity * item_unit_price;
+  end loop;
+
+  calculated_subtotal := round(calculated_subtotal, 2);
+  calculated_tax := round(calculated_subtotal * invoice_tax_rate / 100, 2);
+  calculated_total := calculated_subtotal + calculated_tax;
+
+  update public.invoices
+  set client_id = (p_invoice->>'client_id')::uuid,
+      client_name = trim(p_invoice->>'client_name'),
+      client_company = nullif(trim(p_invoice->>'client_company'), ''),
+      client_email = trim(p_invoice->>'client_email'),
+      client_address = nullif(trim(p_invoice->>'client_address'), ''),
+      invoice_number = trim(p_invoice->>'invoice_number'),
+      sender_name = trim(p_invoice->>'sender_name'),
+      sender_company = nullif(trim(p_invoice->>'sender_company'), ''),
+      sender_email = trim(p_invoice->>'sender_email'),
+      sender_address = nullif(trim(p_invoice->>'sender_address'), ''),
+      currency = coalesce(nullif(p_invoice->>'currency', ''), 'EUR'),
+      invoice_date = (p_invoice->>'invoice_date')::date,
+      due_date = (p_invoice->>'due_date')::date,
+      status = coalesce(p_invoice->>'status', 'draft'),
+      tax_rate = invoice_tax_rate,
+      subtotal = calculated_subtotal,
+      tax_amount = calculated_tax,
+      total_amount = calculated_total,
+      notes = nullif(trim(p_invoice->>'notes'), '')
+  where id = p_invoice_id and user_id = (select auth.uid())
+  returning * into saved_invoice;
+
+  if not found then
+    raise exception 'Invoice not found or access denied';
+  end if;
+
+  delete from public.invoice_items where invoice_id = p_invoice_id;
+  for item_row in select value from jsonb_array_elements(p_items)
+  loop
+    insert into public.invoice_items (invoice_id, description, quantity, unit_price)
+    values (p_invoice_id, trim(item_row->>'description'), (item_row->>'quantity')::numeric, (item_row->>'unitPrice')::numeric);
+  end loop;
+
+  select coalesce(jsonb_agg(to_jsonb(ii) order by ii.created_at), '[]'::jsonb)
+  into saved_items
+  from public.invoice_items ii where ii.invoice_id = p_invoice_id;
+
+  return jsonb_build_object('invoice', to_jsonb(saved_invoice), 'items', saved_items);
+end;
+$function$;
+
+revoke all on function public.update_invoice_with_items(uuid, jsonb, jsonb) from public, anon;
+grant execute on function public.update_invoice_with_items(uuid, jsonb, jsonb) to authenticated;
