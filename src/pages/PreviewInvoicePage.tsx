@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PreviewInvoice from "../components/invoice/PreviewInvoice/PreviewInvoice";
 import { exportInvoicePdf } from "../features/invoices/utils/exportPdf";
@@ -9,8 +10,26 @@ import Footer from "../components/common/Footer";
 export default function PreviewInvoicePage() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
 
   const invoice = state?.invoice;
+
+  async function handleExport() {
+    if (!invoice || isExporting) return;
+
+    setExportError("");
+    setIsExporting(true);
+    try {
+      await exportInvoicePdf("invoice-preview", invoice.invoiceNumber || "invoice");
+    } catch (error) {
+      setExportError(
+        error instanceof Error ? error.message : "Could not export the invoice PDF. Please try again."
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  }
 
   return (
     <div className="page space-y invoice-theme-light">
@@ -41,13 +60,18 @@ export default function PreviewInvoicePage() {
 
               <button
                 className="btn btn-primary"
-                onClick={() =>
-                  exportInvoicePdf("invoice-preview", invoice.invoiceNumber || "invoice")
-                }
+                onClick={() => void handleExport()}
+                disabled={isExporting}
+                aria-busy={isExporting}
               >
-                Download / Export PDF
+                {isExporting ? "Preparing PDF…" : "Download / Export PDF"}
               </button>
             </div>
+            {exportError && (
+              <p role="alert" className="form-alert mt-lg">
+                {exportError}
+              </p>
+            )}
           </>
         ) : (
           <div className="empty-state">
