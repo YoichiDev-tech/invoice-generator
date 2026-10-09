@@ -6,10 +6,11 @@ import InvoiceDetails from "./InvoiceDetails";
 import ItemTable from "./ItemTable";
 
 export default function PreviewInvoice({ invoice }: { invoice: Invoice }) {
-  const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  const roundMoney = (amount: number) => Math.round((amount + Number.EPSILON) * 100) / 100;
+  const subtotal = roundMoney(invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0));
   const taxRate = invoice.taxRate || 0;
-  const taxAmount = subtotal * (taxRate / 100);
-  const total = subtotal + taxAmount;
+  const taxAmount = roundMoney(subtotal * (taxRate / 100));
+  const total = roundMoney(subtotal + taxAmount);
   return <div className="preview-container space-y">
     <div className="preview-top-row"><div className="preview-branding"><div className="branding-logo-placeholder">{invoice.senderCompany || "Your Company"}</div></div><div className="preview-title-block"><h1 className="invoice-title">INVOICE</h1></div></div>
     <InvoiceDetails invoice={invoice} />

@@ -28,9 +28,10 @@ export interface InvoiceRecord {
 }
 
 export function invoiceAmounts(invoice: Pick<Invoice, "items" | "taxRate">) {
-  const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const taxAmount = subtotal * (invoice.taxRate / 100);
-  return { subtotal: Math.round((subtotal + Number.EPSILON) * 100) / 100, taxAmount: Math.round((taxAmount + Number.EPSILON) * 100) / 100, totalAmount: Math.round((subtotal + taxAmount + Number.EPSILON) * 100) / 100 };
+  const roundMoney = (amount: number) => Math.round((amount + Number.EPSILON) * 100) / 100;
+  const subtotal = roundMoney(invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0));
+  const taxAmount = roundMoney(subtotal * (invoice.taxRate / 100));
+  return { subtotal, taxAmount, totalAmount: roundMoney(subtotal + taxAmount) };
 }
 
 export async function createInvoiceWithItems(invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">, items: Array<{ description: string; quantity: number; unitPrice: number }>) {
