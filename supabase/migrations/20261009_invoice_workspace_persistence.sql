@@ -15,6 +15,18 @@ alter table public.invoices add column if not exists subtotal numeric(12,2) not 
 alter table public.invoices add column if not exists tax_amount numeric(12,2) not null default 0;
 alter table public.invoices add column if not exists total_amount numeric(12,2) not null default 0;
 
+-- Preserve the order in which line items were entered; transaction timestamps can be identical.
+alter table public.invoice_items add column if not exists position integer;
+with ranked_items as (
+  select id, row_number() over (partition by invoice_id order by created_at asc nulls last, id asc) - 1 as item_position
+  from public.invoice_items
+)
+update public.invoice_items as item
+set position = ranked_items.item_position
+from ranked_items
+where item.id = ranked_items.id and item.position is null;
+create index if not exists invoice_items_invoice_position_idx on public.invoice_items (invoice_id, position);
+
 update public.invoices i
 set client_name = coalesce(i.client_name, c.name),
     client_company = coalesce(i.client_company, c.company),
@@ -172,13 +184,15 @@ begin
     calculated_subtotal, calculated_tax, calculated_total, nullif(trim(p_invoice->>'notes'), '')
   ) returning * into saved_invoice;
 
-  for item_row in select value from jsonb_array_elements(p_items)
+  for item_row in
+    select value || jsonb_build_object('position', ordinality - 1)
+    from jsonb_array_elements(p_items) with ordinality as items(value, ordinality)
   loop
-    insert into public.invoice_items (invoice_id, description, quantity, unit_price)
-    values (saved_invoice.id, trim(item_row->>'description'), (item_row->>'quantity')::numeric, (item_row->>'unitPrice')::numeric);
+    insert into public.invoice_items (invoice_id, position, description, quantity, unit_price)
+    values (saved_invoice.id, (item_row->>'position')::integer, trim(item_row->>'description'), (item_row->>'quantity')::numeric, (item_row->>'unitPrice')::numeric);
   end loop;
 
-  select coalesce(jsonb_agg(to_jsonb(ii) order by ii.created_at), '[]'::jsonb)
+  select coalesce(jsonb_agg(to_jsonb(ii) order by ii.position nulls last, ii.created_at, ii.id), '[]'::jsonb)
   into saved_items
   from public.invoice_items ii where ii.invoice_id = saved_invoice.id;
 
@@ -313,10 +327,12 @@ begin
   end if;
 
   delete from public.invoice_items where invoice_id = p_invoice_id;
-  for item_row in select value from jsonb_array_elements(p_items)
+  for item_row in
+    select value || jsonb_build_object('position', ordinality - 1)
+    from jsonb_array_elements(p_items) with ordinality as items(value, ordinality)
   loop
-    insert into public.invoice_items (invoice_id, description, quantity, unit_price)
-    values (p_invoice_id, trim(item_row->>'description'), (item_row->>'quantity')::numeric, (item_row->>'unitPrice')::numeric);
+    insert into public.invoice_items (invoice_id, position, description, quantity, unit_price)
+    values (p_invoice_id, (item_row->>'position')::integer, trim(item_row->>'description'), (item_row->>'quantity')::numeric, (item_row->>'unitPrice')::numeric);
   end loop;
 
   select coalesce(jsonb_agg(to_jsonb(ii) order by ii.created_at), '[]'::jsonb)
