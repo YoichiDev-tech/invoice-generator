@@ -1,12 +1,25 @@
 import { useEffect, useState } from "react";
+
+type RecentInvoice = {
+    id: string;
+    client_id: string | null;
+    amount: number;
+    status: string;
+    invoice_date: string;
+};
+
+type ClientRecord = {
+    id: string;
+    name: string;
+};
 import { supabaseClient } from "../lib/supabaseClient";
 import StatusBadge from "../components/common/StatusBadge";
 import { useInvoiceTotals } from "../features/invoices/hooks/useInvoiceTotals";
 
 export default function DashboardPage() {
-    const [recentInvoices, setRecentInvoices] = useState<any[]>([]);
+    const [recentInvoices, setRecentInvoices] = useState<RecentInvoice[]>([]);
     const [loading, setLoading] = useState(true);
-    const [clients, setClients] = useState<any[]>([]);
+    const [clients, setClients] = useState<ClientRecord[]>([]);
 
     // Load backend totals
     const { totals, loading: totalsLoading } = useInvoiceTotals();
@@ -35,7 +48,7 @@ export default function DashboardPage() {
                 console.error(error);
                 setRecentInvoices([]);
             } else {
-                setRecentInvoices(data);
+                setRecentInvoices(data ?? []);
             }
 
             // Fetch all clients for this user
@@ -47,7 +60,7 @@ export default function DashboardPage() {
             if(clientError) {
                 console.error(clientError);
             } else {
-                setClients(clientData);
+                setClients(clientData ?? []);
             }
 
             setLoading(false);
@@ -58,7 +71,7 @@ export default function DashboardPage() {
     }, []);
     
     // Lookup map
-    const clientLookup = clients.reduce((acc, client) => {
+    const clientLookup = clients.reduce<Record<string, string>>((acc, client) => {
         acc[client.id] = client.name;
         return acc;
     }, {});
