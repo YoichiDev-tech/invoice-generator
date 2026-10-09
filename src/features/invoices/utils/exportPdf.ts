@@ -53,7 +53,7 @@ export async function exportInvoicePdf(elementId: string, fileName: string): Pro
       }
     }
 
-    const safeFileName = fileName.trim().replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-") || "invoice";
+    const safeFileName = fileName.trim().replace(/[<>:"/\\|?*]/g, "-") || "invoice";
     pdf.save(`${safeFileName}.pdf`);
   } finally {
     // Restore the responsive on-screen preview even when canvas capture fails.
