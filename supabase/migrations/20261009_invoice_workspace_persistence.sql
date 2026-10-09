@@ -43,7 +43,10 @@ create policy "Owner manages clients" on public.clients
 
 create policy "Owner manages invoices" on public.invoices
   for all to authenticated using (user_id = (select auth.uid()))
-  with check (user_id = (select auth.uid()));
+  with check (
+    user_id = (select auth.uid())
+    and exists (select 1 from public.clients c where c.id = client_id and c.user_id = (select auth.uid()))
+  );
 
 create policy "Owner manages invoice items" on public.invoice_items
   for all to authenticated
@@ -62,10 +65,55 @@ declare
   saved_invoice public.invoices%rowtype;
   saved_items jsonb;
   item_row jsonb;
+  invoice_tax_rate numeric(7,4);
+  calculated_subtotal numeric(12,2) := 0;
+  calculated_tax numeric(12,2) := 0;
+  calculated_total numeric(12,2) := 0;
+  item_quantity numeric;
+  item_unit_price numeric;
 begin
   if (p_invoice->>'user_id') is distinct from (select auth.uid())::text then
     raise exception 'Invoice owner does not match the authenticated user';
   end if;
+  if nullif(trim(p_invoice->>'client_id'), '') is null then
+    raise exception 'A client is required';
+  end if;
+  if nullif(trim(p_invoice->>'invoice_number'), '') is null then
+    raise exception 'An invoice number is required';
+  end if;
+  if nullif(trim(p_invoice->>'sender_name'), '') is null or nullif(trim(p_invoice->>'sender_email'), '') is null then
+    raise exception 'Sender name and email are required';
+  end if;
+  if (p_invoice->>'due_date')::date < (p_invoice->>'invoice_date')::date then
+    raise exception 'Due date cannot be earlier than invoice date';
+  end if;
+  invoice_tax_rate := coalesce((p_invoice->>'tax_rate')::numeric, 0);
+  if invoice_tax_rate < 0 or invoice_tax_rate > 100 then
+    raise exception 'Tax rate must be between 0 and 100';
+  end if;
+  if coalesce(jsonb_typeof(p_items), '') <> 'array' or jsonb_array_length(coalesce(p_items, '[]'::jsonb)) = 0 then
+    raise exception 'At least one invoice line item is required';
+  end if;
+
+  for item_row in select value from jsonb_array_elements(p_items)
+  loop
+    item_quantity := (item_row->>'quantity')::numeric;
+    item_unit_price := (item_row->>'unitPrice')::numeric;
+    if nullif(trim(item_row->>'description'), '') is null then
+      raise exception 'Line item description is required';
+    end if;
+    if item_quantity <= 0 then
+      raise exception 'Line item quantity must be greater than zero';
+    end if;
+    if item_unit_price < 0 then
+      raise exception 'Line item unit price cannot be negative';
+    end if;
+    calculated_subtotal := calculated_subtotal + (item_quantity * item_unit_price);
+  end loop;
+
+  calculated_subtotal := round(calculated_subtotal, 2);
+  calculated_tax := round(calculated_subtotal * invoice_tax_rate / 100, 2);
+  calculated_total := calculated_subtotal + calculated_tax;
 
   insert into public.invoices (
     user_id, client_id, invoice_number, sender_name, sender_company, sender_email,
@@ -77,12 +125,11 @@ begin
     nullif(trim(p_invoice->>'sender_company'), ''), trim(p_invoice->>'sender_email'),
     nullif(trim(p_invoice->>'sender_address'), ''), coalesce(nullif(p_invoice->>'currency', ''), 'EUR'),
     (p_invoice->>'invoice_date')::date, (p_invoice->>'due_date')::date,
-    coalesce(p_invoice->>'status', 'draft'), coalesce((p_invoice->>'tax_rate')::numeric, 0),
-    coalesce((p_invoice->>'subtotal')::numeric, 0), coalesce((p_invoice->>'tax_amount')::numeric, 0),
-    coalesce((p_invoice->>'total_amount')::numeric, 0), nullif(trim(p_invoice->>'notes'), '')
+    coalesce(p_invoice->>'status', 'draft'), invoice_tax_rate,
+    calculated_subtotal, calculated_tax, calculated_total, nullif(trim(p_invoice->>'notes'), '')
   ) returning * into saved_invoice;
 
-  for item_row in select value from jsonb_array_elements(coalesce(p_items, '[]'::jsonb))
+  for item_row in select value from jsonb_array_elements(p_items)
   loop
     insert into public.invoice_items (invoice_id, description, quantity, unit_price)
     values (saved_invoice.id, trim(item_row->>'description'), (item_row->>'quantity')::numeric, (item_row->>'unitPrice')::numeric);
