@@ -8,7 +8,7 @@ export async function createClient(client: ClientInput) {
   const { data: existing, error: lookupError } = await supabaseClient.from("clients").select("*").eq("user_id", client.user_id).ilike("email", email).maybeSingle();
   if (lookupError) throw lookupError;
   if (existing) {
-    const { data, error } = await supabaseClient.from("clients").update({ name: client.name.trim(), email, company: client.company?.trim() || null, address: client.address?.trim() || "" }).eq("id", existing.id).select().single();
+    const { data, error } = await supabaseClient.from("clients").update({ name: client.name.trim(), email, company: client.company?.trim() || existing.company || null, address: client.address?.trim() || existing.address || "" }).eq("id", existing.id).select().single();
     if (error) throw error;
     return data;
   }

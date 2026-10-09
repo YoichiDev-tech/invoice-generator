@@ -1,134 +1,39 @@
-# Title
+# Folio — Invoice Generator
 
-Invoice Generator
+A personal invoicing workspace for freelance and small-studio work. The app supports client records, invoice creation, line items, tax calculations, saved invoice history, status tracking, and PDF export.
 
-## Screenshot
+## Stack
 
-![alt text](image.png)
+- React, TypeScript, Vite, React Router
+- Supabase Auth and Postgres
+- html2canvas + jsPDF for client-side PDF export
 
-## Description
+## Local setup
 
-A professional, client-ready invoice generator with a full Supababse backend.
-Users can create clients, invoices line items, preview invoices and export them as high quality PDFs.
+1. Install dependencies with `npm ci`.
+2. Create `.env.local` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+3. Review and apply migrations in `supabase/migrations/` to the intended Supabase project.
+4. Configure Supabase Auth redirect URLs for local development and the production origin.
+5. Run `npm run dev`.
+6. Run `npm run lint` and `npm run build`.
 
-This project is built as a production-ready prototype with complete CRUD operations 
-and secure Row Level Security (RLS) policies.
+## Production requirements
 
-## Current version
+- The database migration persists invoice number, sender details, currency, totals, and invoice line items.
+- The `create_invoice_with_items` RPC saves invoice data and line items in one database transaction.
+- The migration replaces row-level policies on clients, invoices, and invoice items with owner-scoped policies. Review the policy changes against your live project before applying them.
+- Dashboard totals are grouped by currency to avoid adding euros, pounds, dollars, and złoty together.
+- Settings currently save defaults in the current browser only; cloud sync and company tax identifiers are not implemented.
+- PDF export and visual behavior still require browser testing on desktop and mobile, including long invoices and page breaks.
+- Do not treat the app as production-ready until the migrations have been applied, RLS has been tested with separate accounts, and real invoice creation/reopen/export has been verified against Supabase.
 
-22/07/2026 - 23:55
-Release 1.4 - Stability, validation & real invoice polish
+## Acceptance checklist
 
-## Features
-
-### Frontend
-- Create clients
-- Create invoices
-- Add, edit and remove invoice items
-- Automatic subtotal, tax and total calculation
-- Professional invoice preview
-- PDF export (html"canvas + jsPDF)
-- Responsive layout (mobile + desktop)
-- Clean spacing and typography
-
-### Backend
-- Clients table + CRUD
-- Invoices table + CRUD
-- Invoice items table + CRUD
-- Full Row Level Security
-- Policies ensuring users only access their own data
-- Secure architecture ready for production
-
-## Tech stack
-
-- React Vite
-- Typescript
-- CSS3
-- html2canvas + jsPDF
-- React Router
-- Supabase (Postgres + Auth + RLS)
-
-## Bugs (on current commit)
-
-None
-
-## Future improvements
-
-- Add AI assistant
-- Add invoice themes
-- Add multi-currency support
-- Add invoice history + dashboard
-- Add client database
-- Add authentication
-- Add PDF branding
-- Add invoice status tracking
-
-## Changelog 
-
-### 22/07/2026 - 22:03
-- Added full Supabase backend
-- Added clients CRUD
-- Added invoices CRUD
-- Added invoices items CRUD
-- Added RLS + policies 
-- Completed backend integration
-- Cleaned up frontend logic
-
-### 23//07/2026 - 13.38
-Fixed the bug on the UI that wasn't calling the CRUD functions, by adding:
- - CRUD functions imports into the designated file (CreateInvoicePage)
- - added a create invoice handler
- - replaced the button's onCLick with the new handler 
-
- ### 23/07/2026 - 23.55
-Stability and real-world polish pass:
-- Fixed `.env.local` — Supabase env vars weren't prefixed with `VITE_`, so the client was silently
-  never connecting to the database
-- Fixed a type mismatch in `useInvoiceState.ts` / `CreateInvoicePage.tsx` that broke `npm run build`
-  entirely (line items were created with DB-shaped snake_case fields against a camelCase type)
-- Split the DB-shaped invoice payload out into its own `InvoiceRecord` type in `invoicesApi.ts`
-  (matching the existing pattern in `invoiceItemsApi.ts`), instead of misusing the UI's `Invoice` type
-- Added an auto-generated invoice number, a proper `dueDate` field, and a status selector to the
-  create form (previously due date silently reused the invoice date, and status was never editable)
-- Added required-field validation with inline error messages before saving
-- Added per-line-item delete (previously only "remove all" existed) and stable item keys
-- Added loading/error state around the Supabase save flow
-- Fixed `StatusBadge` to support the actual `draft/sent/paid/overdue` statuses instead of a
-  hardcoded `PAID`/`UNPAID` pair that never matched real data
-- Removed a duplicated invoice number/date block from the preview (it was rendered twice)
-- Unified all currency display through `formatCurrency` (previously mixed manual "£" strings and
-  raw unformatted numbers)
-- Made PDF export paginate across multiple A4 pages for longer invoices instead of clipping them
-- Replaced a hardcoded personal brand name ("Yoichi Digital") with a neutral, dynamic placeholder
-- General CSS polish: disabled/loading button states, validation alert styling, per-row remove
-  button, a two-column invoice header (branding vs. title), and print-friendly styles
-
-### 24/07/2026 - 15:42
-- Added auth
-- Added login/signup page
-- Added more styling
-
-### 24/07/2026 - 17:23
-- Fixed Vercel production crash by adding missing supabase env vars (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
-- Fixed supabase email confirmation redirect by adding /login and /auth/callback to allowed redirect URLs
-- Removed localhost fallback in supabase (production email links now work)
-- Authentication flow now fully functional: signup => email confirmation => callback => login
-- Multi-user isolation now stable: each user has their own account, clients and invoices
-
-### 2026-07-27 - 22:37
-- Started implementation of proper route protection
-- Added unified authentication guard for all protected pages
-- Ensured unauthenticated users are redirected to login
-- Prevented authenticated users from accessing login/register pages
-- Improved overall security and user flow
-
-### 28/07/2026 - 21:30
-- Polished PDF export layout
-- Improved invoice preview spacing and alignment
-- Fixed duplicate subtotal rendering
-- Added professional footer styling
-- Cleaned unused Tailwind/PostCSS configs
-
-## Author
-
-Yoichi dev
+- [ ] Signup, email confirmation, login, logout, and protected routes
+- [ ] Account A cannot read or mutate Account B's clients, invoices, or invoice items
+- [ ] Duplicate client email reuses the existing client record
+- [ ] Invoice number, sender/client details, currency, tax, notes, and all line items persist
+- [ ] Saved invoices can be reopened and exported after a page refresh
+- [ ] Status updates and deletion behave correctly with linked line items
+- [ ] PDF pagination, currency formatting, and mobile layout are reviewed manually
+- [ ] Production Vercel environment variables and deployment are verified
