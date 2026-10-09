@@ -80,3 +80,15 @@ export async function deleteInvoice(id: string) {
   const { error } = await supabaseClient.rpc("delete_invoice_with_items", { p_invoice_id: id });
   if (error) throw error;
 }
+
+/** Fetch one invoice through the authenticated user's RLS scope. */
+export async function getInvoiceById(id: string): Promise<InvoiceRecord> {
+  const { data, error } = await supabaseClient
+    .from("invoices")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Invoice not found or you do not have access to it.");
+  return data as InvoiceRecord;
+}

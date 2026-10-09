@@ -84,7 +84,7 @@ export default function InvoicesPage() {
         status: invoice.status,
         taxRate: Number(invoice.tax_rate ?? 0),
       };
-      navigate("/preview", { state: { invoice: previewInvoice } });
+      navigate("/preview/" + invoice.id, { state: { invoice: previewInvoice } });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not reopen this invoice.");
     } finally { setBusyId(""); }
@@ -105,6 +105,6 @@ export default function InvoicesPage() {
       {loading ? <div className="workspace-empty">Loading invoices…</div> : invoices.length === 0 ? <div className="workspace-empty"><div className="workspace-empty-icon">▤</div><h3>No invoices yet</h3><p>When you create an invoice, it will be tracked here.</p><Link className="workspace-text-link" to="/create">Create an invoice →</Link></div> :
         <div className="workspace-table-wrap"><table className="workspace-table"><thead><tr><th>Invoice</th><th>Client</th><th>Issued</th><th>Due</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>{invoices.map((invoice) => <tr key={invoice.id}><td><span className="table-primary">{invoice.invoice_number || "INV-" + invoice.id.slice(0,6).toUpperCase()}</span></td><td>{invoice.client_name || clientLookup[invoice.client_id ?? ""] || "Client record"}</td><td>{date(invoice.invoice_date)}</td><td>{date(invoice.due_date)}</td><td>{money(invoice.total_amount ?? invoice.amount, invoice.currency || "EUR")}</td><td><StatusBadge status={effectiveStatus(invoice)} /></td><td><div className="invoice-row-actions"><button className="invoice-preview-action" disabled={busyId === invoice.id} onClick={() => void openPreview(invoice)}>Preview</button><select aria-label={"Status for invoice " + invoice.id} value={effectiveStatus(invoice)} disabled={busyId === invoice.id} onChange={(event) => void changeStatus(invoice, event.target.value as InvoiceStatus)}>{statuses.map((status) => <option key={status} value={status}>{status[0].toUpperCase()+status.slice(1)}</option>)}</select><button className="invoice-delete-action" disabled={busyId === invoice.id} onClick={() => void remove(invoice)} aria-label="Delete invoice">Delete</button></div></td></tr>)}</tbody></table></div>}
     </section>
-    <div className="workspace-note"><strong>PDF history</strong><span>Invoice records are listed here. Reopening and exporting a previously saved invoice requires the saved invoice-number, sender, and line-item data to be present in your database schema; that persistence audit is part of the production-readiness pass.</span></div>
+    <div className="workspace-note"><strong>Saved invoice history</strong><span>Open a saved invoice using its permanent preview link, even after refreshing the page.</span></div>
   </div>;
 }

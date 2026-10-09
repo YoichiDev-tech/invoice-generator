@@ -21,7 +21,7 @@ export default function App() {
         <Route path="/invoices" element={<ProtectedRoute><AppLayout title="Invoices" description="Create, track, and manage your client billing."><InvoicesPage /></AppLayout></ProtectedRoute>} />
         <Route path="/clients" element={<ProtectedRoute><AppLayout title="Clients" description="Keep client details ready for the next project."><ClientsPage /></AppLayout></ProtectedRoute>} />
         <Route path="/create" element={<ProtectedRoute><AppLayout title="Create invoice" description="Build a polished invoice with all the details your client needs."><CreateInvoicePage /></AppLayout></ProtectedRoute>} />
-        <Route path="/preview" element={<ProtectedRoute><AppLayout title="Invoice preview" description="Review the document before exporting it."><PreviewInvoicePage /></AppLayout></ProtectedRoute>} />
+        <Route path="/preview" element={<ProtectedRoute><AppLayout title="Invoice preview" description="Review the document before exporting it."><PreviewInvoicePage /></AppLayout></ProtectedRoute>}\n        <Route path="/preview/:invoiceId" element={<ProtectedRoute><AppLayout title="Invoice preview" description="Review the document before exporting it."><PreviewInvoicePage /></AppLayout></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppLayout title="Settings" description="Set defaults for your freelance business."><SettingsPage /></AppLayout></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

@@ -68,7 +68,7 @@ export default function CreateInvoicePage() {
         ? await updateInvoiceWithItems(invoice.id, invoicePayload, itemsPayload)
         : await createInvoiceWithItems(invoicePayload, itemsPayload);
       const previewItems = saved.items.map((item, index) => ({ id: item.id || "saved-" + index, description: item.description, quantity: Number(item.quantity), unitPrice: Number(item.unit_price) }));
-      navigate("/preview", { state: { invoice: { ...invoice, id: saved.invoice.id, client: newClient, items: previewItems } }, replace: true });
+      navigate("/preview/" + saved.invoice.id, { state: { invoice: { ...invoice, id: saved.invoice.id, client: newClient, items: previewItems } }, replace: true });
     } catch (err) {
       console.error("Error creating invoice:", err);
       setErrorMessage("Couldn't save the invoice: " + getErrorMessage(err));
