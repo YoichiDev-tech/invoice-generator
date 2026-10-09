@@ -5,7 +5,7 @@ import { getInvoices, updateInvoice, deleteInvoice } from "../features/invoices/
 import { getClients } from "../features/invoices/api/invoiceApi";
 import StatusBadge from "../components/common/StatusBadge";
 
-type InvoiceRow = { id: string; invoice_number?: string | null; client_id?: string | null; status: InvoiceStatus; invoice_date?: string | null; due_date?: string | null; amount?: number | null; total_amount?: number | null; created_at?: string | null; };
+type InvoiceRow = { id: string; invoice_number?: string | null; client_id?: string | null; status: InvoiceStatus; invoice_date?: string | null; due_date?: string | null; amount?: number | null; total_amount?: number | null; currency?: string | null; created_at?: string | null; };
 type ClientRow = { id: string; name: string; email?: string | null; };
 const statuses: InvoiceStatus[] = ["draft", "sent", "paid", "overdue"];
 
