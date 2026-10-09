@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import type { InvoiceStatus } from "../features/invoices/types/invoiceTypes";
 
 type RecentInvoice = {
     id: string;
     client_id: string | null;
     amount: number;
-    status: string;
+    status: InvoiceStatus;
     invoice_date: string;
 };
 
@@ -165,7 +166,7 @@ export default function DashboardPage() {
                                 return (
                                     <tr key={inv.id}>
                                         <td className="py-2">{inv.id}</td>
-                                        <td className="py-2">{clientLookup[inv.client_id] || "Unknown"}</td>
+                                        <td className="py-2">{clientLookup[inv.client_id ?? ""] || "Unknown"}</td>
                                         <td className="py-2">{formattedAmount}</td>
                                         <td className="py-2"><StatusBadge status={inv.status} /></td>
                                         <td className="py-2">{formattedDateString}</td>
