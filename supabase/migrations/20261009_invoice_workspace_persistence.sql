@@ -242,7 +242,10 @@ begin
   if invoice_tax_rate < 0 or invoice_tax_rate > 100 then
     raise exception 'Tax rate must be between 0 and 100';
   end if;
-  if jsonb_typeof(p_items) is distinct from 'array' or jsonb_array_length(p_items) = 0 then
+  if jsonb_typeof(p_items) is distinct from 'array' then
+    raise exception 'Invoice line items must be an array';
+  end if;
+  if jsonb_array_length(p_items) = 0 then
     raise exception 'At least one invoice line item is required';
   end if;
 
