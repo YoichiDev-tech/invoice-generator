@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
 import { signOut } from "../../../features/auth/api/AuthApi";
-import Logo from "../../common/Logo";
 
 interface AppLayoutProps { children: ReactNode; title: string; description?: string; }
 
