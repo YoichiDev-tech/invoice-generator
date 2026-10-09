@@ -13,15 +13,25 @@ function generateInvoiceNumber() {
   return "INV-" + year + "-" + suffix;
 }
 
-function readPreferences(): { businessName?: string; senderName?: string; senderEmail?: string; currency?: string; defaultNotes?: string; defaultTaxRate?: string } {
+function readPreferences(): { businessName?: string; senderName?: string; senderEmail?: string; currency?: string; defaultNotes?: string; defaultTaxRate?: string; businessAddress?: string } {
   if (typeof window === "undefined") return {};
   try {
     return JSON.parse(window.localStorage.getItem("folio.invoice-preferences") || "{}") as ReturnType<typeof readPreferences>;
   } catch { return {}; }
 }
 
+function formatLocalDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function buildInitialInvoice(): Invoice {
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = formatLocalDate(now);
+  const due = new Date(now);
+  due.setDate(due.getDate() + 14);
   const preferences = readPreferences();
   const parsedTaxRate = Number(preferences.defaultTaxRate ?? 0);
   return {
@@ -29,10 +39,10 @@ function buildInitialInvoice(): Invoice {
     senderName: preferences.senderName ?? "",
     senderCompany: preferences.businessName ?? "",
     senderEmail: preferences.senderEmail ?? "",
-    senderAddress: "",
+    senderAddress: preferences.businessAddress ?? "",
     invoiceNumber: generateInvoiceNumber(),
     invoiceDate: today,
-    dueDate: today,
+    dueDate: formatLocalDate(due),
     currency: preferences.currency ?? "EUR",
     items: [{ id: generateItemId(), description: "", quantity: 1, unitPrice: 0 }],
     notes: preferences.defaultNotes ?? "",

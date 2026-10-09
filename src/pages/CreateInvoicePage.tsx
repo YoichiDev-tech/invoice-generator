@@ -30,6 +30,10 @@ export default function CreateInvoicePage() {
     if (!invoice.client.name.trim()) problems.push("Client name is required.");
     if (!invoice.client.email.trim()) problems.push("Client email is required.");
     if (!invoice.invoiceNumber.trim()) problems.push("Invoice number is required.");
+    if (!invoice.invoiceDate || !Number.isFinite(new Date(invoice.invoiceDate).getTime())) problems.push("A valid issue date is required.");
+    if (!invoice.dueDate || !Number.isFinite(new Date(invoice.dueDate).getTime())) problems.push("A valid due date is required.");
+    if (invoice.senderEmail.trim() && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(invoice.senderEmail.trim())) problems.push("Enter a valid business email address.");
+    if (invoice.client.email.trim() && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(invoice.client.email.trim())) problems.push("Enter a valid client email address.");
     if (!invoice.currency.trim()) problems.push("Choose a currency.");
     const validItems = invoice.items.filter((item) => item.description.trim().length > 0);
     if (validItems.length === 0) problems.push("Add at least one line item with a description.");

@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-interface InvoicePreferences { businessName: string; senderName: string; senderEmail: string; currency: string; defaultNotes: string; defaultTaxRate: string; }
+interface InvoicePreferences { businessName: string; senderName: string; senderEmail: string; businessAddress: string; currency: string; defaultNotes: string; defaultTaxRate: string; }
 
-const initialPreferences: InvoicePreferences = { businessName: "", senderName: "", senderEmail: "", currency: "EUR", defaultNotes: "Thank you for your business. Payment is due within 14 days.", defaultTaxRate: "0" };
+const initialPreferences: InvoicePreferences = { businessName: "", senderName: "", senderEmail: "", businessAddress: "", currency: "EUR", defaultNotes: "Thank you for your business. Payment is due within 14 days.", defaultTaxRate: "0" };
 
 export default function SettingsPage() {
   const [preferences, setPreferences] = useState<InvoicePreferences>(() => {
@@ -23,8 +23,13 @@ export default function SettingsPage() {
   }
 
   function savePreferences() {
-    window.localStorage.setItem("folio.invoice-preferences", JSON.stringify(preferences));
-    setSaved(true);
+    try {
+      window.localStorage.setItem("folio.invoice-preferences", JSON.stringify(preferences));
+      setSaved(true);
+    } catch (error) {
+      console.error("Invoice preferences could not be saved.", error);
+      setSaved(false);
+    }
   }
 
   return (
@@ -35,6 +40,7 @@ export default function SettingsPage() {
           <div className="settings-field"><label htmlFor="business-name">Business or trading name</label><input id="business-name" value={preferences.businessName} onChange={(event) => update("businessName", event.target.value)} placeholder="e.g. Cole Digital Studio" /></div>
           <div className="settings-field"><label htmlFor="sender-name">Your full name</label><input id="sender-name" value={preferences.senderName} onChange={(event) => update("senderName", event.target.value)} placeholder="Name shown on invoices" /></div>
           <div className="settings-field"><label htmlFor="sender-email">Business email</label><input id="sender-email" type="email" value={preferences.senderEmail} onChange={(event) => update("senderEmail", event.target.value)} placeholder="you@yourbusiness.com" /></div>
+          <div className="settings-field settings-field-full"><label htmlFor="business-address">Business address</label><input id="business-address" autoComplete="street-address" value={preferences.businessAddress} onChange={(event) => update("businessAddress", event.target.value)} placeholder="Street, city, postcode, country" /></div>
           <div className="settings-field"><label htmlFor="currency">Default currency</label><select id="currency" value={preferences.currency} onChange={(event) => update("currency", event.target.value)}><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound sterling</option><option value="USD">USD — US dollar</option><option value="PLN">PLN — Polish złoty</option><option value="CHF">CHF — Swiss franc</option></select></div>
         </div>
       </section>
