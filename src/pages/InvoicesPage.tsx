@@ -6,11 +6,25 @@ import { getClients } from "../features/invoices/api/invoiceApi";
 import { getInvoiceItems } from "../features/invoices/api/invoiceItemsApi";
 import StatusBadge from "../components/common/StatusBadge";
 
+function localDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatInvoiceDate(value?: string | null) {
+  if (!value) return "—";
+  const date = /^\\d{4}-\\d{2}-\\d{2}$/.test(value) ? new Date(value + "T12:00:00") : new Date(value);
+  if (!Number.isFinite(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date);
+}
+
 type InvoiceRow = { id: string; invoice_number?: string | null; client_id?: string | null; client_name?: string | null; client_company?: string | null; client_email?: string | null; client_address?: string | null; sender_name?: string | null; sender_company?: string | null; sender_email?: string | null; sender_address?: string | null; status: InvoiceStatus; invoice_date?: string | null; due_date?: string | null; tax_rate?: number | null; notes?: string | null; amount?: number | null; total_amount?: number | null; currency?: string | null; created_at?: string | null; };
 type ClientRow = Client;
 const statuses: InvoiceStatus[] = ["draft", "sent", "paid", "overdue"];
 function effectiveStatus(invoice: InvoiceRow): InvoiceStatus {
-  if (invoice.status !== "paid" && invoice.status !== "draft" && invoice.due_date && new Date(invoice.due_date).getTime() < new Date().setHours(0, 0, 0, 0)) return "overdue";
+  if (invoice.status !== "paid" && invoice.status !== "draft" && invoice.due_date && invoice.due_date.slice(0, 10) < localDateKey()) return "overdue";
   return invoice.status;
 }
 
@@ -38,7 +52,7 @@ export default function InvoicesPage() {
 
   const clientLookup = clients.reduce<Record<string,string>>((map, client) => { map[client.id] = client.name; return map; }, {});
   const money = (amount: number | null | undefined, currency = "EUR") => new Intl.NumberFormat(undefined, { style: "currency", currency }).format(Number(amount ?? 0));
-  const date = (value?: string | null) => value ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(value)) : "—";
+  const date = formatInvoiceDate;
 
   async function changeStatus(invoice: InvoiceRow, status: InvoiceStatus) {
     setBusyId(invoice.id); setError("");

@@ -16,19 +16,23 @@ export default function SettingsPage() {
     }
   });
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   function update<K extends keyof InvoicePreferences>(key: K, value: InvoicePreferences[K]) {
     setPreferences((current) => ({ ...current, [key]: value }));
     setSaved(false);
+    setSaveError("");
   }
 
   function savePreferences() {
+    setSaveError("");
     try {
       window.localStorage.setItem("folio.invoice-preferences", JSON.stringify(preferences));
       setSaved(true);
     } catch (error) {
       console.error("Invoice preferences could not be saved.", error);
       setSaved(false);
+      setSaveError("Your browser could not save these preferences. Check browser storage settings and try again.");
     }
   }
 
@@ -50,7 +54,7 @@ export default function SettingsPage() {
           <div className="settings-field"><label htmlFor="tax-rate">Default tax rate (%)</label><input id="tax-rate" type="number" min="0" max="100" step="0.01" value={preferences.defaultTaxRate} onChange={(event) => update("defaultTaxRate", event.target.value)} /></div>
           <div className="settings-field settings-field-full"><label htmlFor="default-notes">Default notes / payment terms</label><textarea id="default-notes" rows={4} value={preferences.defaultNotes} onChange={(event) => update("defaultNotes", event.target.value)} placeholder="Payment terms, bank transfer details, or a thank-you note." /></div>
         </div>
-        <div className="settings-save-row"><p role="status" className={saved ? "settings-saved" : "settings-save-hint"}>{saved ? "Preferences saved on this device." : "Preferences are stored locally in this browser."}</p><button type="button" className="dashboard-primary-action" onClick={savePreferences}>Save preferences</button></div>
+        <div className="settings-save-row"><p role={saveError ? "alert" : "status"} className={saveError ? "form-alert" : saved ? "settings-saved" : "settings-save-hint"}>{saveError || (saved ? "Preferences saved on this device." : "Preferences are stored locally in this browser.")}</p><button type="button" className="dashboard-primary-action" onClick={savePreferences}>Save preferences</button></div>
       </section>
       <div className="workspace-note"><strong>Privacy note</strong><span>These preferences are currently stored in this browser only. They are not synced across devices or included automatically on new invoices yet.</span></div>
     </div>
