@@ -60,6 +60,6 @@ export async function updateInvoice(id: string, updates: Partial<InvoiceRecord>)
 }
 
 export async function deleteInvoice(id: string) {
-  const { error } = await supabaseClient.from("invoices").delete().eq("id", id);
+  const { error } = await supabaseClient.rpc("delete_invoice_with_items", { p_invoice_id: id });
   if (error) throw error;
 }

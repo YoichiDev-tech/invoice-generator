@@ -187,3 +187,6 @@ h1,h2,h3,h4 { margin: 0; font-weight: 650; letter-spacing: -.035em; }
 .invoice-preview-action { padding: 7px 9px; border: 1px solid #e0e7ff; border-radius: 7px; color: #4338ca; background: #f5f5ff; font-size: 10px; font-weight: 750; cursor: pointer; }
 .invoice-preview-action:hover:not(:disabled) { background: #e0e7ff; }
 .invoice-preview-action:disabled { opacity: .5; cursor: not-allowed; }
+
+.client-row-actions { display: flex; align-items: center; gap: 7px; margin-left: auto; }
+@media (max-width: 520px) { .client-row-actions { flex-direction: column; align-items: stretch; } }

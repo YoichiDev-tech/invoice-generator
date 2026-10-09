@@ -26,7 +26,7 @@ export function useInvoiceTotals() {
           const amount = Number(invoice.total_amount ?? invoice.amount ?? 0);
           if (!Number.isFinite(amount)) continue;
           if (invoice.status === "paid") paid[currency] = (paid[currency] ?? 0) + amount;
-          else outstanding[currency] = (outstanding[currency] ?? 0) + amount;
+          else if (invoice.status !== "draft") outstanding[currency] = (outstanding[currency] ?? 0) + amount;
         }
         if (active) setTotals({ total_invoices: invoices.length, outstanding_by_currency: outstanding, paid_by_currency: paid });
       } catch (cause) {

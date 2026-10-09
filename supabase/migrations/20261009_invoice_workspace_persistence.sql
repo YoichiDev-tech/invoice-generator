@@ -96,14 +96,26 @@ begin
   if nullif(trim(p_invoice->>'sender_name'), '') is null or nullif(trim(p_invoice->>'sender_email'), '') is null then
     raise exception 'Sender name and email are required';
   end if;
+  if nullif(p_invoice->>'invoice_date', '') is null or nullif(p_invoice->>'due_date', '') is null then
+    raise exception 'Invoice date and due date are required';
+  end if;
   if (p_invoice->>'due_date')::date < (p_invoice->>'invoice_date')::date then
     raise exception 'Due date cannot be earlier than invoice date';
+  end if;
+  if coalesce(p_invoice->>'status', 'draft') not in ('draft', 'sent', 'paid', 'overdue') then
+    raise exception 'Invalid invoice status';
+  end if;
+  if coalesce(p_invoice->>'currency', 'EUR') not in ('EUR', 'GBP', 'USD', 'PLN', 'CHF') then
+    raise exception 'Unsupported invoice currency';
   end if;
   invoice_tax_rate := coalesce((p_invoice->>'tax_rate')::numeric, 0);
   if invoice_tax_rate < 0 or invoice_tax_rate > 100 then
     raise exception 'Tax rate must be between 0 and 100';
   end if;
-  if coalesce(jsonb_typeof(p_items), '') <> 'array' or jsonb_array_length(coalesce(p_items, '[]'::jsonb)) = 0 then
+  if jsonb_typeof(p_items) is distinct from 'array' then
+    raise exception 'Invoice line items must be an array';
+  end if;
+  if jsonb_array_length(p_items) = 0 then
     raise exception 'At least one invoice line item is required';
   end if;
 
@@ -114,10 +126,10 @@ begin
     if nullif(trim(item_row->>'description'), '') is null then
       raise exception 'Line item description is required';
     end if;
-    if item_quantity <= 0 then
+    if item_quantity is null or item_quantity <= 0 then
       raise exception 'Line item quantity must be greater than zero';
     end if;
-    if item_unit_price < 0 then
+    if item_unit_price is null or item_unit_price < 0 then
       raise exception 'Line item unit price cannot be negative';
     end if;
     calculated_subtotal := calculated_subtotal + (item_quantity * item_unit_price);
@@ -160,3 +172,22 @@ $function$;
 
 revoke all on function public.create_invoice_with_items(jsonb, jsonb) from public, anon;
 grant execute on function public.create_invoice_with_items(jsonb, jsonb) to authenticated;
+
+
+create or replace function public.delete_invoice_with_items(p_invoice_id uuid)
+returns void
+language plpgsql
+security invoker
+set search_path = public
+as $function$
+begin
+  if not exists (select 1 from public.invoices i where i.id = p_invoice_id and i.user_id = (select auth.uid())) then
+    raise exception 'Invoice not found or access denied';
+  end if;
+  delete from public.invoice_items where invoice_id = p_invoice_id;
+  delete from public.invoices where id = p_invoice_id and user_id = (select auth.uid());
+end;
+$function$;
+
+revoke all on function public.delete_invoice_with_items(uuid) from public, anon;
+grant execute on function public.delete_invoice_with_items(uuid) to authenticated;
