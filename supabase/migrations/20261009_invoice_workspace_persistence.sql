@@ -27,6 +27,22 @@ update public.invoices
 set invoice_number = 'INV-LEGACY-' || upper(substr(id::text, 1, 8))
 where invoice_number is null or length(trim(invoice_number)) = 0;
 
+-- Keep the migration deployable when older accounts already reused an invoice number.
+-- Preserve the oldest record's number and give duplicate legacy records stable unique identifiers.
+with ranked_numbers as (
+  select id, row_number() over (
+    partition by user_id, invoice_number
+    order by created_at asc nulls last, id asc
+  ) as duplicate_rank
+  from public.invoices
+  where invoice_number is not null
+)
+update public.invoices as invoice
+set invoice_number = 'INV-LEGACY-' || replace(invoice.id::text, '-', '')
+from ranked_numbers
+where invoice.id = ranked_numbers.id
+  and ranked_numbers.duplicate_rank > 1;
+
 create unique index if not exists invoices_owner_number_unique on public.invoices (user_id, invoice_number);
 create index if not exists invoices_owner_created_idx on public.invoices (user_id, created_at desc);
 create index if not exists clients_owner_email_idx on public.clients (user_id, lower(email));

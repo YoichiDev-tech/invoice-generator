@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { signIn, signUp } from "../features/auth/api/AuthApi";
@@ -18,11 +18,12 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
-  // Already signed in? Skip straight to the app
-  if (session) {
-    navigate("/create", { replace: true });
-    return null;
-  }
+  // Keep navigation out of render; React Router handles it after the session updates.
+  useEffect(() => {
+    if (session) navigate("/create", { replace: true });
+  }, [session, navigate]);
+
+  if (session) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
