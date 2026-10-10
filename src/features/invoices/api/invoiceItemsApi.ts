@@ -8,6 +8,7 @@ export interface InvoiceItem {
   unit_price: number;
   created_at: string;
   updated_at: string;
+  position?: number | null;
 }
 
 // Create item
@@ -30,7 +31,9 @@ export async function getInvoiceItems(invoiceId: string) {
     .from("invoice_items")
     .select("*")
     .eq("invoice_id", invoiceId)
-    .order("created_at", { ascending: true });
+    .order("position", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true });
 
   if (error) throw error;
   return data;

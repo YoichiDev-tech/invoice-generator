@@ -1,5 +1,3 @@
-// Invoice + client TS types
-
 export interface Client {
   id: string;
   user_id: string;
@@ -12,8 +10,6 @@ export interface Client {
 }
 
 export interface InvoiceItem {
-  // Client-side only identifier used for React keys and per-row edits/removals
-  // Not persisted directly — the Supabase layer uses its own DB-shaped item type
   id: string;
   description: string;
   quantity: number;
@@ -28,10 +24,11 @@ export interface Invoice {
   senderName: string;
   senderCompany: string;
   senderEmail: string;
+  senderAddress: string;
   invoiceNumber: string;
   invoiceDate: string;
-  // Due date is distinct from the issue date — every real invoice needs both
   dueDate: string;
+  currency: string;
   items: InvoiceItem[];
   notes?: string;
   status: InvoiceStatus;

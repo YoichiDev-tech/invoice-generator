@@ -1,63 +1,62 @@
-import React from "react";
+import { useState } from "react";
 
-const SettingsPage: React.FC = () => {
+interface InvoicePreferences { businessName: string; senderName: string; senderEmail: string; businessAddress: string; currency: string; defaultNotes: string; defaultTaxRate: string; }
+
+const initialPreferences: InvoicePreferences = { businessName: "", senderName: "", senderEmail: "", businessAddress: "", currency: "EUR", defaultNotes: "Thank you for your business. Payment is due within 14 days.", defaultTaxRate: "0" };
+
+export default function SettingsPage() {
+  const [preferences, setPreferences] = useState<InvoicePreferences>(() => {
+    if (typeof window === "undefined") return initialPreferences;
+    try {
+      const stored = window.localStorage.getItem("folio.invoice-preferences");
+      return stored ? { ...initialPreferences, ...(JSON.parse(stored) as Partial<InvoicePreferences>) } : initialPreferences;
+    } catch (error) {
+      console.warn("Invoice preferences could not be restored.", error);
+      return initialPreferences;
+    }
+  });
+  const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  function update<K extends keyof InvoicePreferences>(key: K, value: InvoicePreferences[K]) {
+    setPreferences((current) => ({ ...current, [key]: value }));
+    setSaved(false);
+    setSaveError("");
+  }
+
+  function savePreferences() {
+    setSaveError("");
+    try {
+      window.localStorage.setItem("folio.invoice-preferences", JSON.stringify(preferences));
+      setSaved(true);
+    } catch (error) {
+      console.error("Invoice preferences could not be saved.", error);
+      setSaved(false);
+      setSaveError("Your browser could not save these preferences. Check browser storage settings and try again.");
+    }
+  }
+
   return (
-    <div className="px-4 py-6 flex justify-center">
-      <div className="w-full max-w-[480px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/70 dark:shadow-black/40 p-6 space-y-6">
-
-        <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-          Settings
-        </h1>
-
-        <p className="text-xs text-slate-600 dark:text-slate-400">
-          Manage your invoice generator preferences.
-        </p>
-
-        {/* Theme */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            Theme
-          </label>
-
-          <select className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm">
-            <option>System Default</option>
-            <option>Light</option>
-            <option>Dark</option>
-          </select>
+    <div className="settings-layout">
+      <section className="workspace-card settings-card">
+        <div className="workspace-card-heading"><div><h2>Business profile</h2><p>These details help keep new invoices consistent.</p></div><span className="settings-section-icon">⌂</span></div>
+        <div className="settings-grid">
+          <div className="settings-field"><label htmlFor="business-name">Business or trading name</label><input id="business-name" value={preferences.businessName} onChange={(event) => update("businessName", event.target.value)} placeholder="e.g. Cole Digital Studio" /></div>
+          <div className="settings-field"><label htmlFor="sender-name">Your full name</label><input id="sender-name" value={preferences.senderName} onChange={(event) => update("senderName", event.target.value)} placeholder="Name shown on invoices" /></div>
+          <div className="settings-field"><label htmlFor="sender-email">Business email</label><input id="sender-email" type="email" value={preferences.senderEmail} onChange={(event) => update("senderEmail", event.target.value)} placeholder="you@yourbusiness.com" /></div>
+          <div className="settings-field settings-field-full"><label htmlFor="business-address">Business address</label><input id="business-address" autoComplete="street-address" value={preferences.businessAddress} onChange={(event) => update("businessAddress", event.target.value)} placeholder="Street, city, postcode, country" /></div>
+          <div className="settings-field"><label htmlFor="currency">Default currency</label><select id="currency" value={preferences.currency} onChange={(event) => update("currency", event.target.value)}><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound sterling</option><option value="USD">USD — US dollar</option><option value="PLN">PLN — Polish złoty</option><option value="CHF">CHF — Swiss franc</option></select></div>
         </div>
-
-        {/* Business Name */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            Business Name
-          </label>
-
-          <input
-            className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm"
-            placeholder="Your business name"
-          />
+      </section>
+      <section className="workspace-card settings-card">
+        <div className="workspace-card-heading"><div><h2>Invoice defaults</h2><p>Set sensible starting values; review every invoice before sending.</p></div><span className="settings-section-icon">▤</span></div>
+        <div className="settings-grid">
+          <div className="settings-field"><label htmlFor="tax-rate">Default tax rate (%)</label><input id="tax-rate" type="number" min="0" max="100" step="0.01" value={preferences.defaultTaxRate} onChange={(event) => update("defaultTaxRate", event.target.value)} /></div>
+          <div className="settings-field settings-field-full"><label htmlFor="default-notes">Default notes / payment terms</label><textarea id="default-notes" rows={4} value={preferences.defaultNotes} onChange={(event) => update("defaultNotes", event.target.value)} placeholder="Payment terms, bank transfer details, or a thank-you note." /></div>
         </div>
-
-        {/* Default Notes */}
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            Default Invoice Notes
-          </label>
-
-          <textarea
-            rows={4}
-            className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-sm"
-            placeholder="Default payment terms or thank-you message"
-          />
-        </div>
-
-        {/* Save Button */}
-        <button className="w-full text-xs px-4 py-2 rounded bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900">
-          Save Settings
-        </button>
-      </div>
+        <div className="settings-save-row"><p role={saveError ? "alert" : "status"} className={saveError ? "form-alert" : saved ? "settings-saved" : "settings-save-hint"}>{saveError || (saved ? "Preferences saved on this device." : "Preferences are stored locally in this browser.")}</p><button type="button" className="dashboard-primary-action" onClick={savePreferences}>Save preferences</button></div>
+      </section>
+      <div className="workspace-note"><strong>Privacy note</strong><span>These preferences are currently stored in this browser only. They are not synced across devices or included automatically on new invoices yet.</span></div>
     </div>
   );
-};
-
-export default SettingsPage;
+}
