@@ -24,10 +24,10 @@ A personal invoicing workspace for freelance and small-studio work. The app supp
 - The migration replaces row-level policies on clients, invoices, and invoice items with owner-scoped policies. Review the policy changes against your live project before applying them.
 - Dashboard totals are grouped by currency to avoid adding euros, pounds, dollars, and złoty together.
 - Settings currently save defaults in the current browser only; cloud sync and company tax identifiers are not implemented.
-- PDF export and visual behavior still require browser testing on desktop and mobile, including long invoices and page breaks.
+- PDF export waits for fonts, uses an A4-width capture on mobile, validates the generated canvas, sanitizes filenames, paginates long invoices, restores responsive styles after failures, and reports user-friendly errors.
 - Do not treat the app as production-ready until the migrations have been applied, RLS has been tested with separate accounts, and real invoice creation/reopen/export has been verified against Supabase.
 
-## Acceptance checklist
+## Final QA checklist
 
 - [ ] Signup, email confirmation, login, logout, and protected routes
 - [ ] Account A cannot read or mutate Account B's clients, invoices, or invoice items
@@ -35,5 +35,10 @@ A personal invoicing workspace for freelance and small-studio work. The app supp
 - [ ] Invoice number, sender/client details, currency, tax, notes, and all line items persist
 - [ ] Saved invoices can be reopened and exported after a page refresh
 - [ ] Status updates and deletion behave correctly with linked line items
+- [ ] Export a short invoice on desktop and mobile
+- [ ] Export a long invoice with enough line items to span multiple pages; verify every page and the final totals
+- [ ] Force a failed export (for example, by temporarily making the preview element unavailable) and confirm the page remains responsive and the error is accessible
 - [ ] PDF pagination, currency formatting, and mobile layout are reviewed manually
+- [ ] At 375px and 768px viewport widths, preview and controls remain usable without unintended page-level horizontal overflow
+- [ ] Browser console has no warnings or errors during login, invoice preview, and export
 - [ ] Production Vercel environment variables and deployment are verified

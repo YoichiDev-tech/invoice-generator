@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 220" fill="none">
+  <title>PW&amp;IG — PrismWave &amp; Invoice Generator</title>
+  <desc>A custom invoice-shaped monogram with a flowing prism wave, above the PW&amp;IG wordmark.</desc>
+  <defs>
+    <linearGradient id="prism" x1="80" y1="22" x2="162" y2="132" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#2DD4BF"/>
+    </linearGradient>
+  </defs>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M78 20H137L162 45V128L152 136L142 128L132 136L122 128L112 136L102 128L92 136L82 128V30Q82 20 92 20Z" stroke="#172A40" stroke-width="4"/>
+    <path d="M137 20V45H162" stroke="#172A40" stroke-width="4"/>
+    <path d="M101 52V83M101 53H119C132 53 132 69 119 69H101" stroke="#172A40" stroke-width="4"/>
+    <path d="M101 92L113 106L126 86L139 101L148 91" stroke="url(#prism)" stroke-width="5"/>
+    <path d="M102 115H137" stroke="#172A40" stroke-width="3"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="120" y="171" fill="#172A40" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="750" letter-spacing="-1.2">PW<tspan fill="#2CBEB5">&amp;</tspan>IG</text>
+    <path d="M83 183H157" stroke="#2CBEB5" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="120" y="199" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="8" font-weight="600" letter-spacing="1.35">PRISMWAVE · INVOICE GENERATOR</text>
+  </g>
+</svg>

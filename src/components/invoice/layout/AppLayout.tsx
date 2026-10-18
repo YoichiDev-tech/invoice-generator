@@ -26,7 +26,7 @@ export default function AppLayout({ children, title, description }: AppLayoutPro
   return (
     <div className="workspace-shell">
       <aside className="workspace-sidebar">
-        <NavLink to="/dashboard" className="workspace-brand" aria-label="Invoice Generator home"><span className="workspace-brand-mark">i.</span><span>folio<span className="workspace-brand-dot">.</span></span></NavLink>
+        <NavLink to="/dashboard" className="workspace-brand" aria-label="Folio invoice workspace home"><img src="/pw-ig-mark.svg" alt="" className="workspace-brand-logo" /><span>folio<span className="workspace-brand-dot">.</span></span></NavLink>
         <div className="workspace-nav-label">WORKSPACE</div>
         <nav className="workspace-nav" aria-label="Workspace navigation">
           {navigation.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => "workspace-nav-link" + (isActive || (item.to === "/invoices" && location.pathname.startsWith("/invoices/")) ? " is-active" : "")}><span className="workspace-nav-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>{item.to === "/create" && <span className="workspace-nav-shortcut">New</span>}</NavLink>)}

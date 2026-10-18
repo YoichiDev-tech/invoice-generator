@@ -55,7 +55,7 @@ export default function LoginPage() {
     <div className="page auth-page">
       <div className="card auth-card">
         <div className="auth-header">
-          <Logo size={56} />
+          <Logo size={132} />
           <h1 className="section-title">{mode === "signIn" ? "Log in" : "Create an account"}</h1>
           <p className="auth-subtitle">
             {mode === "signIn"
