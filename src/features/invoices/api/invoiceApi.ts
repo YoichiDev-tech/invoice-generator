@@ -3,10 +3,11 @@ import type { Client } from "../types/invoiceTypes";
 
 type ClientInput = Omit<Client, "id" | "created_at" | "updated_at">;
 
-export async function createClient(client: ClientInput) {
+export async function createClient(client: ClientInput, updateExisting = true) {
   const email = client.email.trim().toLowerCase();
   const { data: existing, error: lookupError } = await supabaseClient.from("clients").select("*").eq("user_id", client.user_id).ilike("email", email).maybeSingle();
   if (lookupError) throw lookupError;
+  if (existing && !updateExisting) return existing;
   if (existing) {
     const { data, error } = await supabaseClient.from("clients").update({ name: client.name.trim(), email, company: client.company?.trim() || existing.company || null, address: client.address?.trim() || existing.address || "" }).eq("id", existing.id).select().single();
     if (error) throw error;
