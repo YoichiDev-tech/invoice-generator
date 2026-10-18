@@ -53,7 +53,7 @@ export default function CreateInvoicePage() {
     if (problems.length) { setErrorMessage(problems.join(" ")); return; }
     setErrorMessage(null); setIsSaving(true);
     try {
-      const newClient = await createClient({ user_id: user.id, name: invoice.client.name.trim(), email: invoice.client.email.trim(), company: invoice.client.company, address: invoice.client.address });
+      const newClient = await createClient({ user_id: user.id, name: invoice.client.name.trim(), email: invoice.client.email.trim(), company: invoice.client.company, address: invoice.client.address }, false);
       const billableItems = invoice.items.filter((item) => item.description.trim());
       const amounts = invoiceAmounts({ ...invoice, items: billableItems });
       const invoicePayload = {
@@ -69,7 +69,7 @@ export default function CreateInvoicePage() {
         ? await updateInvoiceWithItems(invoice.id, invoicePayload, itemsPayload)
         : await createInvoiceWithItems(invoicePayload, itemsPayload);
       const previewItems = saved.items.map((item, index) => ({ id: item.id || "saved-" + index, description: item.description, quantity: Number(item.quantity), unitPrice: Number(item.unit_price) }));
-      navigate("/preview/" + saved.invoice.id, { state: { invoice: { ...invoice, id: saved.invoice.id, client: newClient, items: previewItems } }, replace: true });
+      navigate("/preview/" + saved.invoice.id, { state: { invoice: { ...invoice, id: saved.invoice.id, client: { ...newClient, name: invoice.client.name.trim(), email: invoice.client.email.trim(), company: invoice.client.company?.trim() || "", address: invoice.client.address?.trim() || "" }, items: previewItems } }, replace: true });
     } catch (err) {
       console.error("Error creating invoice:", err);
       setErrorMessage("Couldn't save the invoice: " + getErrorMessage(err));

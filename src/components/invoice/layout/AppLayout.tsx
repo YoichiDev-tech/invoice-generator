@@ -33,13 +33,13 @@ export default function AppLayout({ children, title, description }: AppLayoutPro
         </nav>
         <div className="workspace-sidebar-bottom">
           <div className="workspace-user"><div className="workspace-avatar">{(user?.email?.[0] ?? "Y").toUpperCase()}</div><div className="min-w-0"><p className="truncate text-xs font-semibold text-white">{user?.email ?? "Your workspace"}</p><p className="mt-1 text-[10px] text-slate-400">Personal workspace</p></div></div>
-          <button className="workspace-signout" onClick={() => void handleSignOut()}>Sign out <span aria-hidden="true">↗</span></button>
+          <button className="workspace-signout" aria-label="Sign out" onClick={() => void handleSignOut()}>Sign out <span aria-hidden="true">↗</span></button>
         </div>
       </aside>
       <div className="workspace-main">
         <header className="workspace-topbar">
           <div><p className="workspace-breadcrumb">WORKSPACE <span>/</span> {title.toUpperCase()}</p><h1>{title}</h1>{description && <p className="workspace-description">{description}</p>}</div>
-          <div className="workspace-topbar-right"><span className="workspace-status-dot" /> <span>Autosave-ready workspace</span></div>
+          <div className="workspace-topbar-right"><span className="workspace-status-dot" /> <span>Signed-in workspace</span></div>
         </header>
         <main className="workspace-content">{children}</main>
       </div>

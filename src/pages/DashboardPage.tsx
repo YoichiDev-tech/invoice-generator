@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<ClientRecord[]>([]);
   const [error, setError] = useState("");
-  const { totals, loading: totalsLoading } = useInvoiceTotals();
+  const { totals, loading: totalsLoading, error: totalsError } = useInvoiceTotals();
 
   useEffect(() => {
     let active = true;
@@ -63,20 +63,20 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-stack">
-      {error && <div className="workspace-alert" role="alert">{error}</div>}
+      {(error || totalsError) && <div className="workspace-alert" role="alert">{error || totalsError?.message}</div>}
       <section className="dashboard-welcome">
         <div><p className="dashboard-eyebrow">YOUR BUSINESS SNAPSHOT</p><h2>Make the admin feel lighter.</h2><p>Keep client billing organized so you can spend more time doing the work you’re paid for.</p></div>
         <Link to="/create" className="dashboard-primary-action"><span aria-hidden="true">＋</span> Create invoice</Link>
       </section>
       <section className="dashboard-metrics">
-        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Total invoices</span><span className="dashboard-metric-icon">▤</span></div><p>{totalsLoading ? "—" : totals?.total_invoices ?? 0}</p><small>All invoices in your workspace</small></article>
+        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Total invoices</span><span className="dashboard-metric-icon">▤</span></div><p>{totalsLoading || totalsError ? "—" : totals?.total_invoices ?? 0}</p><small>All invoices in your workspace</small></article>
         <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Clients</span><span className="dashboard-metric-icon">♙</span></div><p>{loading ? "—" : clients.length}</p><small>People and businesses you bill</small></article>
-        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Outstanding</span><span className="dashboard-metric-icon">◷</span></div><p className="dashboard-money-value">{totalsLoading ? "—" : currencyGroups(totals?.outstanding_by_currency)}</p><small>Invoices still awaiting payment</small></article>
-        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Paid</span><span className="dashboard-metric-icon">✓</span></div><p className="dashboard-money-value">{totalsLoading ? "—" : currencyGroups(totals?.paid_by_currency)}</p><small>Recorded as paid</small></article>
+        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Outstanding</span><span className="dashboard-metric-icon">◷</span></div><p className="dashboard-money-value">{totalsLoading || totalsError ? "—" : currencyGroups(totals?.outstanding_by_currency)}</p><small>Invoices still awaiting payment</small></article>
+        <article className="dashboard-metric"><div className="dashboard-metric-top"><span>Paid</span><span className="dashboard-metric-icon">✓</span></div><p className="dashboard-money-value">{totalsLoading || totalsError ? "—" : currencyGroups(totals?.paid_by_currency)}</p><small>Recorded as paid</small></article>
       </section>
       <section className="workspace-card">
         <div className="workspace-card-heading"><div><h2>Recent invoices</h2><p>Your latest billing activity.</p></div><Link to="/invoices" className="workspace-text-link">View all invoices <span aria-hidden="true">→</span></Link></div>
-        {loading ? <div className="workspace-empty">Loading your invoices…</div> : recentInvoices.length === 0 ? <div className="workspace-empty"><div className="workspace-empty-icon">▤</div><h3>No invoices yet</h3><p>Create your first invoice to start keeping your freelance billing in one place.</p><Link className="workspace-text-link" to="/create">Create your first invoice →</Link></div> : <div className="workspace-table-wrap"><table className="workspace-table"><thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th><th>Issue date</th></tr></thead><tbody>{recentInvoices.map((invoice) => <tr key={invoice.id}><td><span className="table-primary">{invoice.invoice_number || ("INV-" + invoice.id.slice(0, 6).toUpperCase())}</span></td><td>{invoice.client_name || clientLookup[invoice.client_id ?? ""] || "Client record"}</td><td>{currency(invoice.total_amount ?? invoice.amount, invoice.currency || "EUR")}</td><td><StatusBadge status={effectiveStatus(invoice)} /></td><td>{invoice.invoice_date ? formatInvoiceDate(invoice.invoice_date) : "—"}</td></tr>)}</tbody></table></div>}
+        {loading ? <div className="workspace-empty" role="status">Loading your invoices…</div> : error ? <div className="workspace-empty">Your invoices could not be loaded. Please try again.</div> : recentInvoices.length === 0 ? <div className="workspace-empty"><div className="workspace-empty-icon">▤</div><h3>No invoices yet</h3><p>Create your first invoice to start keeping your freelance billing in one place.</p><Link className="workspace-text-link" to="/create">Create your first invoice →</Link></div> : <div className="workspace-table-wrap"><table className="workspace-table"><thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th><th>Issue date</th></tr></thead><tbody>{recentInvoices.map((invoice) => <tr key={invoice.id}><td><span className="table-primary">{invoice.invoice_number || ("INV-" + invoice.id.slice(0, 6).toUpperCase())}</span></td><td>{invoice.client_name || clientLookup[invoice.client_id ?? ""] || "Client record"}</td><td>{currency(invoice.total_amount ?? invoice.amount, invoice.currency || "EUR")}</td><td><StatusBadge status={effectiveStatus(invoice)} /></td><td>{invoice.invoice_date ? formatInvoiceDate(invoice.invoice_date) : "—"}</td></tr>)}</tbody></table></div>}
       </section>
       <section className="dashboard-quick-actions"><div><h2>Keep moving</h2><p>Shortcuts for the work you do most often.</p></div><div className="dashboard-action-grid"><Link to="/create" className="dashboard-action-card"><span className="dashboard-action-symbol">＋</span><span><strong>New invoice</strong><small>Prepare a client-ready document</small></span><span className="dashboard-action-arrow">↗</span></Link><Link to="/clients" className="dashboard-action-card"><span className="dashboard-action-symbol">♙</span><span><strong>Manage clients</strong><small>Keep contact details up to date</small></span><span className="dashboard-action-arrow">↗</span></Link><Link to="/settings" className="dashboard-action-card"><span className="dashboard-action-symbol">⚙</span><span><strong>Business settings</strong><small>Set your default invoice details</small></span><span className="dashboard-action-arrow">↗</span></Link></div></section>
     </div>
