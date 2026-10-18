@@ -34,12 +34,32 @@ export function invoiceAmounts(invoice: Pick<Invoice, "items" | "taxRate">) {
   return { subtotal, taxAmount, totalAmount: roundMoney(subtotal + taxAmount) };
 }
 
+type SavedInvoiceItem = {
+  id: string;
+  invoice_id: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  position?: number | null;
+  created_at?: string;
+};
+
+function orderSavedItems(items: SavedInvoiceItem[]) {
+  return [...items].sort((a, b) => {
+    const positionA = a.position ?? Number.MAX_SAFE_INTEGER;
+    const positionB = b.position ?? Number.MAX_SAFE_INTEGER;
+    if (positionA !== positionB) return positionA - positionB;
+    const createdAtOrder = (a.created_at ?? "").localeCompare(b.created_at ?? "");
+    return createdAtOrder || a.id.localeCompare(b.id);
+  });
+}
+
 export async function createInvoiceWithItems(invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">, items: Array<{ description: string; quantity: number; unitPrice: number }>) {
   const { data, error } = await supabaseClient.rpc("create_invoice_with_items", { p_invoice: invoice, p_items: items });
   if (error) throw error;
-  const result = data as { invoice: InvoiceRecord; items: Array<{ id: string; invoice_id: string; description: string; quantity: number; unit_price: number }> };
+  const result = data as { invoice: InvoiceRecord; items: SavedInvoiceItem[] };
   if (!result?.invoice?.id) throw new Error("The invoice could not be saved. Please try again.");
-  return result;
+  return { ...result, items: orderSavedItems(result.items ?? []) };
 }
 
 export async function updateInvoiceWithItems(
@@ -53,9 +73,9 @@ export async function updateInvoiceWithItems(
     p_items: items,
   });
   if (error) throw error;
-  const result = data as { invoice: InvoiceRecord; items: Array<{ id: string; invoice_id: string; description: string; quantity: number; unit_price: number }> };
+  const result = data as { invoice: InvoiceRecord; items: SavedInvoiceItem[] };
   if (!result?.invoice?.id) throw new Error("The invoice could not be updated. Please try again.");
-  return result;
+  return { ...result, items: orderSavedItems(result.items ?? []) };
 }
 
 export async function createInvoice(invoice: Omit<InvoiceRecord, "id" | "created_at" | "updated_at">) {
