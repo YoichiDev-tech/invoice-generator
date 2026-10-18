@@ -64,23 +64,24 @@ export async function exportInvoicePdf(elementId: string, fileName: string): Pro
       }
     }
 
-    const safeFileName = fileName
-      .trim()
-      .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+    const invalidFilenameCharacters = new Set(["<", ">", ":", "\"", "/", "\\", "|", "?", "*"]);
+    const safeBaseName = Array.from(fileName.trim())
+      .map((character) => invalidFilenameCharacters.has(character) || character.charCodeAt(0) < 32 ? "-" : character)
+      .join("")
       .replace(/[. ]+$/g, "")
       .replace(/\.pdf$/i, "") || "invoice";
 
-    pdf.save(`${safeFileName}.pdf`);
+    pdf.save(`${safeBaseName}.pdf`);
   } catch (error) {
     if (error instanceof Error && /taint|cross-origin|security/i.test(error.message)) {
-      throw new Error("A resource in the invoice preview blocked PDF export. Remove the resource or refresh the preview, then try again.");
+      throw new Error("A resource in the invoice preview blocked PDF export. Remove the resource or refresh the preview, then try again.", { cause: error });
     }
 
     if (error instanceof Error && /empty|dimensions|converted to a PDF image/i.test(error.message)) {
-      throw error;
+      throw new Error(error.message, { cause: error });
     }
 
-    throw new Error("PDF export failed. Please try again. If it keeps happening, refresh the preview and retry.");
+    throw new Error("PDF export failed. Please try again. If it keeps happening, refresh the preview and retry.", { cause: error });
   } finally {
     element.style.width = previousWidth;
     element.style.maxWidth = previousMaxWidth;
